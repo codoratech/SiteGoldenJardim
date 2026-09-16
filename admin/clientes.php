@@ -1,0 +1,134 @@
+<?php
+include("header.php");
+include("../conexao/banco.php");
+
+$msg = "";
+// Ações de CRUD
+if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
+    $id = intval($_GET['id']);
+    mysqli_query($con, "DELETE FROM TB_Clientes WHERE ID_Cliente = $id");
+    header("Location: clientes.php");
+    exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nome = mysqli_real_escape_string($con, $_POST['cli_Nome']);
+    $tipo = mysqli_real_escape_string($con, $_POST['cli_Tipo']);
+    $telefone = mysqli_real_escape_string($con, $_POST['cli_Telefone']);
+    $email = mysqli_real_escape_string($con, $_POST['cli_Email']);
+    $endereco = mysqli_real_escape_string($con, $_POST['cli_Endereco']);
+    
+    if (isset($_POST['id_cliente']) && !empty($_POST['id_cliente'])) {
+        $id = intval($_POST['id_cliente']);
+        mysqli_query($con, "UPDATE TB_Clientes SET cli_Nome='$nome', cli_Tipo='$tipo', cli_Telefone='$telefone', cli_Email='$email', cli_Endereco='$endereco' WHERE ID_Cliente=$id");
+        $msg = "Cliente atualizado com sucesso!";
+    } else {
+        mysqli_query($con, "INSERT INTO TB_Clientes (cli_Nome, cli_Tipo, cli_Telefone, cli_Email, cli_Endereco) VALUES ('$nome', '$tipo', '$telefone', '$email', '$endereco')");
+        $msg = "Cliente cadastrado com sucesso!";
+    }
+}
+
+$edit_cliente = null;
+if (isset($_GET['acao']) && $_GET['acao'] == 'editar' && isset($_GET['id'])) {
+    $id = intval($_GET['id']);
+    $res = mysqli_query($con, "SELECT * FROM TB_Clientes WHERE ID_Cliente = $id");
+    $edit_cliente = mysqli_fetch_assoc($res);
+}
+
+$clientes = mysqli_query($con, "SELECT * FROM TB_Clientes ORDER BY ID_Cliente DESC");
+?>
+
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+        <h1 class="font-display font-bold text-2xl md:text-3xl tracking-tight mb-1">Gerenciamento de Clientes</h1>
+        <p class="text-slate-400 text-sm">Cadastre, edite e acompanhe os clientes da Golden Jardim.</p>
+    </div>
+</div>
+
+<?php if(!empty($msg)): ?>
+    <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm">
+        <?= $msg ?>
+    </div>
+<?php endif; ?>
+
+<!-- Form Card -->
+<div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
+    <h3 class="font-display font-bold text-lg mb-4"><?= $edit_cliente ? 'Editar Cliente' : 'Novo Cliente' ?></h3>
+    <form action="clientes.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <input type="hidden" name="id_cliente" value="<?= $edit_cliente['ID_Cliente'] ?? '' ?>">
+        
+        <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome Completo</label>
+            <input type="text" name="cli_Nome" required value="<?= $edit_cliente['cli_Nome'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+        </div>
+        <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tipo de Cliente</label>
+            <select name="cli_Tipo" class="w-full bg-[#162418] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+                <option value="Residencial" <?= ($edit_cliente['cli_Tipo'] ?? '') == 'Residencial' ? 'selected' : '' ?>>Residencial</option>
+                <option value="Condomínio" <?= ($edit_cliente['cli_Tipo'] ?? '') == 'Condomínio' ? 'selected' : '' ?>>Condomínio</option>
+                <option value="Comercial" <?= ($edit_cliente['cli_Tipo'] ?? '') == 'Comercial' ? 'selected' : '' ?>>Comercial</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Telefone / WhatsApp</label>
+            <input type="text" name="cli_Telefone" value="<?= $edit_cliente['cli_Telefone'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="(19) 99999-9999">
+        </div>
+        <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">E-mail</label>
+            <input type="email" name="cli_Email" value="<?= $edit_cliente['cli_Email'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+        </div>
+        <div class="md:col-span-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Endereço</label>
+            <input type="text" name="cli_Endereco" value="<?= $edit_cliente['cli_Endereco'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+        </div>
+
+        <div class="md:col-span-3 flex items-center gap-3 mt-2">
+            <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider">
+                <?= $edit_cliente ? 'Atualizar Cliente' : 'Salvar Cliente' ?>
+            </button>
+            <?php if($edit_cliente): ?>
+                <a href="clientes.php" class="bg-white/10 text-slate-300 font-bold py-2.5 px-6 rounded-xl hover:bg-white/25 transition-all text-xs uppercase tracking-wider">Cancelar</a>
+            <?php endif; ?>
+        </div>
+    </form>
+</div>
+
+<!-- Table Card -->
+<div class="bg-[#121c14] border border-white/10 rounded-2xl overflow-hidden">
+    <div class="p-6 border-b border-white/10">
+        <h3 class="font-display font-bold text-lg">Lista de Clientes Cadastrados</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-white/10 bg-black/20 text-xs uppercase tracking-wider text-slate-400">
+                    <th class="p-4">ID</th>
+                    <th class="p-4">Nome</th>
+                    <th class="p-4">Tipo</th>
+                    <th class="p-4">Telefone</th>
+                    <th class="p-4">E-mail</th>
+                    <th class="p-4">Endereço</th>
+                    <th class="p-4 text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 text-sm">
+                <?php while($row = mysqli_fetch_assoc($clientes)): ?>
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="p-4 font-mono text-xs text-[#b7f052]">#<?= $row['ID_Cliente'] ?></td>
+                    <td class="p-4 font-bold text-white"><?= htmlspecialchars($row['cli_Nome']) ?></td>
+                    <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs bg-white/5 border border-white/10"><?= htmlspecialchars($row['cli_Tipo']) ?></span></td>
+                    <td class="p-4 text-slate-300"><?= htmlspecialchars($row['cli_Telefone']) ?></td>
+                    <td class="p-4 text-slate-300"><?= htmlspecialchars($row['cli_Email']) ?></td>
+                    <td class="p-4 text-slate-300"><?= htmlspecialchars($row['cli_Endereco']) ?></td>
+                    <td class="p-4 text-center space-x-2">
+                        <a href="clientes.php?acao=editar&id=<?= $row['ID_Cliente'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
+                        <a href="clientes.php?acao=excluir&id=<?= $row['ID_Cliente'] ?>" onclick="return confirm('Deseja realmente excluir este cliente?');" class="text-red-400 hover:underline text-xs">Excluir</a>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<?php include("footer.php"); ?>
