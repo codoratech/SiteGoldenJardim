@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS tb_login (
 
 -- Usuário admin padrão (senha: admin123)
 INSERT INTO tb_login (log_nome, log_login, log_senha) VALUES 
-('Administrador Golden Jardim', 'admin', MD5('admin123'))
+('Administrador Golden Jardim', 'Admin', MD5('admin123'))
 ON DUPLICATE KEY UPDATE log_codigo=log_codigo;
 
 CREATE TABLE IF NOT EXISTS TB_Fornecedores (

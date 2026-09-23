@@ -8,7 +8,8 @@ $q_produtos = mysqli_fetch_assoc(mysqli_query($con, "SELECT COUNT(*) as total FR
 $q_servicos = mysqli_fetch_assoc(mysqli_query($con, "SELECT COUNT(*) as total FROM TB_Servicos"))['total'];
 $q_os = mysqli_fetch_assoc(mysqli_query($con, "SELECT COUNT(*) as total FROM TB_OrdensServico"))['total'];
 $q_agendamentos = mysqli_fetch_assoc(mysqli_query($con, "SELECT COUNT(*) as total FROM TB_Agendamentos"))['total'];
-$total_receber = mysqli_fetch_assoc(mysqli_query($con, "SELECT SUM(Con_Valor) as total FROM TB_ContasReceber WHERE Con_Status = 'Pendente'"))['total'] ?? 0;
+$total_receber_row = mysqli_fetch_assoc(mysqli_query($con, "SELECT SUM(Con_Valor) as total FROM TB_ContasReceber WHERE Con_Status = 'Pendente'"));
+$total_receber = isset($total_receber_row['total']) ? $total_receber_row['total'] : 0;
 ?>
 
 <div class="mb-8">

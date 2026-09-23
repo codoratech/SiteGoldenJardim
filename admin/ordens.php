@@ -49,31 +49,31 @@ $ordens = mysqli_query($con, "SELECT o.*, c.cli_Nome FROM TB_OrdensServico o JOI
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
     <h3 class="font-display font-bold text-lg mb-4"><?= $edit_ordem ? 'Editar Ordem de Serviço' : 'Nova Ordem de Serviço' ?></h3>
     <form action="ordens.php" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input type="hidden" name="id_ordem" value="<?= $edit_ordem['ID_Ordem'] ?? '' ?>">
+        <input type="hidden" name="id_ordem" value="<?= (isset($edit_ordem['ID_Ordem']) ? $edit_ordem['ID_Ordem'] : '') ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Cliente</label>
             <select name="TB_Clientes_ID_Cliente" required class="w-full bg-[#162418] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
                 <option value="">Selecione o cliente...</option>
                 <?php while($c = mysqli_fetch_assoc($clientes)): ?>
-                    <option value="<?= $c['ID_Cliente'] ?>" <?= ($edit_ordem['TB_Clientes_ID_Cliente'] ?? '') == $c['ID_Cliente'] ? 'selected' : '' ?>><?= htmlspecialchars($c['cli_Nome']) ?></option>
+                    <option value="<?= $c['ID_Cliente'] ?>" <?= ((isset($edit_ordem['TB_Clientes_ID_Cliente']) ? $edit_ordem['TB_Clientes_ID_Cliente'] : '')) == $c['ID_Cliente'] ? 'selected' : '' ?>><?= htmlspecialchars($c['cli_Nome']) ?></option>
                 <?php endwhile; ?>
             </select>
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Status</label>
             <select name="Or_Status" class="w-full bg-[#162418] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
-                <option value="Em Andamento" <?= ($edit_ordem['Or_Status'] ?? '') == 'Em Andamento' ? 'selected' : '' ?>>Em Andamento</option>
-                <option value="Concluído" <?= ($edit_ordem['Or_Status'] ?? '') == 'Concluído' ? 'selected' : '' ?>>Concluído</option>
-                <option value="Cancelado" <?= ($edit_ordem['Or_Status'] ?? '') == 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
+                <option value="Em Andamento" <?= ((isset($edit_ordem['Or_Status']) ? $edit_ordem['Or_Status'] : '')) == 'Em Andamento' ? 'selected' : '' ?>>Em Andamento</option>
+                <option value="Concluído" <?= ((isset($edit_ordem['Or_Status']) ? $edit_ordem['Or_Status'] : '')) == 'Concluído' ? 'selected' : '' ?>>Concluído</option>
+                <option value="Cancelado" <?= ((isset($edit_ordem['Or_Status']) ? $edit_ordem['Or_Status'] : '')) == 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
             </select>
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Valor Total (R$)</label>
-            <input type="text" name="Ord_ValorTotal" required value="<?= $edit_ordem['Ord_ValorTotal'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="0.00">
+            <input type="text" name="Ord_ValorTotal" required value="<?= (isset($edit_ordem['Ord_ValorTotal']) ? $edit_ordem['Ord_ValorTotal'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="0.00">
         </div>
         <div class="md:col-span-3">
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Observações</label>
-            <input type="text" name="Ord_Observacoes" value="<?= $edit_ordem['Ord_Observacoes'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="Ord_Observacoes" value="<?= (isset($edit_ordem['Ord_Observacoes']) ? $edit_ordem['Ord_Observacoes'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div class="md:col-span-3 flex items-center gap-3 mt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider"><?= $edit_ordem ? 'Atualizar OS' : 'Criar OS' ?></button>

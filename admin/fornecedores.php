@@ -47,18 +47,18 @@ $fornecedores = mysqli_query($con, "SELECT * FROM TB_Fornecedores ORDER BY ID_Fo
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
     <h3 class="font-display font-bold text-lg mb-4"><?= $edit_fornecedor ? 'Editar Fornecedor' : 'Novo Fornecedor' ?></h3>
     <form action="fornecedores.php" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input type="hidden" name="id_fornecedor" value="<?= $edit_fornecedor['ID_Fornecedor'] ?? '' ?>">
+        <input type="hidden" name="id_fornecedor" value="<?= (isset($edit_fornecedor['ID_Fornecedor']) ? $edit_fornecedor['ID_Fornecedor'] : '') ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Fornecedor</label>
-            <input type="text" name="For_Nome" required value="<?= $edit_fornecedor['For_Nome'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="For_Nome" required value="<?= (isset($edit_fornecedor['For_Nome']) ? $edit_fornecedor['For_Nome'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Telefone</label>
-            <input type="text" name="For_Telefone" value="<?= $edit_fornecedor['For_Telefone'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="For_Telefone" value="<?= (isset($edit_fornecedor['For_Telefone']) ? $edit_fornecedor['For_Telefone'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Endereço</label>
-            <input type="text" name="For_Endereco" value="<?= $edit_fornecedor['For_Endereco'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="For_Endereco" value="<?= (isset($edit_fornecedor['For_Endereco']) ? $edit_fornecedor['For_Endereco'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div class="md:col-span-3 flex items-center gap-3 mt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider"><?= $edit_fornecedor ? 'Atualizar' : 'Salvar Fornecedor' ?></button>

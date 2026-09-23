@@ -51,39 +51,39 @@ $contas = mysqli_query($con, "SELECT cr.*, c.cli_Nome FROM TB_ContasReceber cr J
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
     <h3 class="font-display font-bold text-lg mb-4"><?= $edit_conta ? 'Editar Conta a Receber' : 'Nova Conta a Receber' ?></h3>
     <form action="financeiro.php" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input type="hidden" name="id_conta" value="<?= $edit_conta['ID_ContaReceber'] ?? '' ?>">
+        <input type="hidden" name="id_conta" value="<?= (isset($edit_conta['ID_ContaReceber']) ? $edit_conta['ID_ContaReceber'] : '') ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Cliente</label>
             <select name="TB_Clientes_ID_Cliente" required class="w-full bg-[#162418] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
                 <option value="">Selecione o cliente...</option>
                 <?php while($c = mysqli_fetch_assoc($clientes)): ?>
-                    <option value="<?= $c['ID_Cliente'] ?>" <?= ($edit_conta['TB_Clientes_ID_Cliente'] ?? '') == $c['ID_Cliente'] ? 'selected' : '' ?>><?= htmlspecialchars($c['cli_Nome']) ?></option>
+                    <option value="<?= $c['ID_Cliente'] ?>" <?= ((isset($edit_conta['TB_Clientes_ID_Cliente']) ? $edit_conta['TB_Clientes_ID_Cliente'] : '')) == $c['ID_Cliente'] ? 'selected' : '' ?>><?= htmlspecialchars($c['cli_Nome']) ?></option>
                 <?php endwhile; ?>
             </select>
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">ID da OS (Opcional)</label>
-            <input type="number" name="TB_OrdensServico_ID_Ordem" value="<?= $edit_conta['TB_OrdensServico_ID_Ordem'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: 1">
+            <input type="number" name="TB_OrdensServico_ID_Ordem" value="<?= (isset($edit_conta['TB_OrdensServico_ID_Ordem']) ? $edit_conta['TB_OrdensServico_ID_Ordem'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: 1">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Valor (R$)</label>
-            <input type="text" name="Con_Valor" required value="<?= $edit_conta['Con_Valor'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="0.00">
+            <input type="text" name="Con_Valor" required value="<?= (isset($edit_conta['Con_Valor']) ? $edit_conta['Con_Valor'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="0.00">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Data de Vencimento</label>
-            <input type="date" name="Con_DataVencimento" required value="<?= $edit_conta['Con_DataVencimento'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="date" name="Con_DataVencimento" required value="<?= (isset($edit_conta['Con_DataVencimento']) ? $edit_conta['Con_DataVencimento'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Status</label>
             <select name="Con_Status" class="w-full bg-[#162418] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
-                <option value="Pendente" <?= ($edit_conta['Con_Status'] ?? '') == 'Pendente' ? 'selected' : '' ?>>Pendente</option>
-                <option value="Pago" <?= ($edit_conta['Con_Status'] ?? '') == 'Pago' ? 'selected' : '' ?>>Pago</option>
-                <option value="Cancelado" <?= ($edit_conta['Con_Status'] ?? '') == 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
+                <option value="Pendente" <?= ((isset($edit_conta['Con_Status']) ? $edit_conta['Con_Status'] : '')) == 'Pendente' ? 'selected' : '' ?>>Pendente</option>
+                <option value="Pago" <?= ((isset($edit_conta['Con_Status']) ? $edit_conta['Con_Status'] : '')) == 'Pago' ? 'selected' : '' ?>>Pago</option>
+                <option value="Cancelado" <?= ((isset($edit_conta['Con_Status']) ? $edit_conta['Con_Status'] : '')) == 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
             </select>
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Forma de Pagamento</label>
-            <input type="text" name="Con_FormaPagamento" value="<?= $edit_conta['Con_FormaPagamento'] ?? 'Pix' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Pix, Cartão, Boleto...">
+            <input type="text" name="Con_FormaPagamento" value="<?= (isset($edit_conta['Con_FormaPagamento']) ? $edit_conta['Con_FormaPagamento'] : 'Pix') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Pix, Cartão, Boleto...">
         </div>
         <div class="md:col-span-3 flex items-center gap-3 mt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider"><?= $edit_conta ? 'Atualizar Conta' : 'Salvar Conta' ?></button>

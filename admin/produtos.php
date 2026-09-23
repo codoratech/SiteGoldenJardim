@@ -47,18 +47,18 @@ $produtos = mysqli_query($con, "SELECT * FROM TB_Produtos ORDER BY ID_Produto DE
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
     <h3 class="font-display font-bold text-lg mb-4"><?= $edit_produto ? 'Editar Produto' : 'Novo Produto' ?></h3>
     <form action="produtos.php" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input type="hidden" name="id_produto" value="<?= $edit_produto['ID_Produto'] ?? '' ?>">
+        <input type="hidden" name="id_produto" value="<?= (isset($edit_produto['ID_Produto']) ? $edit_produto['ID_Produto'] : '') ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Produto</label>
-            <input type="text" name="Pro_Nome" required value="<?= $edit_produto['Pro_Nome'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="Pro_Nome" required value="<?= (isset($edit_produto['Pro_Nome']) ? $edit_produto['Pro_Nome'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Preço (R$)</label>
-            <input type="text" name="Pro_Preco" required value="<?= $edit_produto['Pro_Preco'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="0.00">
+            <input type="text" name="Pro_Preco" required value="<?= (isset($edit_produto['Pro_Preco']) ? $edit_produto['Pro_Preco'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="0.00">
         </div>
         <div class="md:col-span-3">
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Descrição</label>
-            <input type="text" name="Pro_Descricao" value="<?= $edit_produto['Pro_Descricao'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="Pro_Descricao" value="<?= (isset($edit_produto['Pro_Descricao']) ? $edit_produto['Pro_Descricao'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div class="md:col-span-3 flex items-center gap-3 mt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider"><?= $edit_produto ? 'Atualizar' : 'Salvar Produto' ?></button>

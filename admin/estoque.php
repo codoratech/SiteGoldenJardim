@@ -46,14 +46,14 @@ $estoque = mysqli_query($con, "SELECT * FROM TB_Estoque ORDER BY ID_Estoque DESC
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
     <h3 class="font-display font-bold text-lg mb-4"><?= $edit_estoque ? 'Editar Movimentação' : 'Nova Movimentação de Estoque' ?></h3>
     <form action="estoque.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="hidden" name="id_estoque" value="<?= $edit_estoque['ID_Estoque'] ?? '' ?>">
+        <input type="hidden" name="id_estoque" value="<?= (isset($edit_estoque['ID_Estoque']) ? $edit_estoque['ID_Estoque'] : '') ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tipo de Movimentação / Item</label>
-            <input type="text" name="Est_Tipo" required value="<?= $edit_estoque['Est_Tipo'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: Entrada de Mudas">
+            <input type="text" name="Est_Tipo" required value="<?= (isset($edit_estoque['Est_Tipo']) ? $edit_estoque['Est_Tipo'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: Entrada de Mudas">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Quantidade</label>
-            <input type="number" name="Est_Quantidade" required value="<?= $edit_estoque['Est_Quantidade'] ?? '' ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="0">
+            <input type="number" name="Est_Quantidade" required value="<?= (isset($edit_estoque['Est_Quantidade']) ? $edit_estoque['Est_Quantidade'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="0">
         </div>
         <div class="md:col-span-2 flex items-center gap-3 mt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider"><?= $edit_estoque ? 'Atualizar' : 'Salvar Registro' ?></button>
