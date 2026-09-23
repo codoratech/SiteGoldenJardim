@@ -1,13 +1,21 @@
 <?php
-include("header.php");
 include("../conexao/banco.php");
 
 $msg = "";
+$msg_erro = "";
+
 if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    mysqli_query($con, "DELETE FROM TB_Fornecedores WHERE ID_Fornecedor = $id");
-    header("Location: fornecedores.php");
-    exit();
+    if (!mysqli_query($con, "DELETE FROM TB_Fornecedores WHERE ID_Fornecedor = $id")) {
+        $msg_erro = "Não foi possível excluir: este fornecedor possui registros vinculados. Detalhe: " . mysqli_error($con);
+    } else {
+        $msg = "Fornecedor excluído com sucesso!";
+    }
+
+    if (empty($msg_erro)) {
+        header("Location: fornecedores.php?ok=1");
+        exit();
+    }
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -17,12 +25,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     if (isset($_POST['id_fornecedor']) && !empty($_POST['id_fornecedor'])) {
         $id = intval($_POST['id_fornecedor']);
-        mysqli_query($con, "UPDATE TB_Fornecedores SET For_Nome='$nome', For_Telefone='$telefone', For_Endereco='$endereco' WHERE ID_Fornecedor=$id");
-        $msg = "Fornecedor atualizado com sucesso!";
+        if (mysqli_query($con, "UPDATE TB_Fornecedores SET For_Nome='$nome', For_Telefone='$telefone', For_Endereco='$endereco' WHERE ID_Fornecedor=$id")) {
+            header("Location: fornecedores.php?ok=update");
+            exit();
+        } else {
+            $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
+        }
     } else {
-        mysqli_query($con, "INSERT INTO TB_Fornecedores (For_Nome, For_Telefone, For_Endereco) VALUES ('$nome', '$telefone', '$endereco')");
-        $msg = "Fornecedor cadastrado com sucesso!";
+        if (mysqli_query($con, "INSERT INTO TB_Fornecedores (For_Nome, For_Telefone, For_Endereco) VALUES ('$nome', '$telefone', '$endereco')")) {
+            header("Location: fornecedores.php?ok=insert");
+            exit();
+        } else {
+            $msg_erro = "Erro ao cadastrar: " . mysqli_error($con);
+        }
     }
+}
+
+if (isset($_GET['ok'])) {
+    if ($_GET['ok'] == 'insert') $msg = "Fornecedor cadastrado com sucesso!";
+    if ($_GET['ok'] == 'update') $msg = "Fornecedor atualizado com sucesso!";
+    if ($_GET['ok'] == '1')      $msg = "Fornecedor excluído com sucesso!";
 }
 
 $edit_fornecedor = null;
@@ -33,6 +55,8 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'editar' && isset($_GET['id'])) {
 }
 
 $fornecedores = mysqli_query($con, "SELECT * FROM TB_Fornecedores ORDER BY ID_Fornecedor DESC");
+
+include("header.php");
 ?>
 
 <div class="mb-8">
@@ -41,7 +65,11 @@ $fornecedores = mysqli_query($con, "SELECT * FROM TB_Fornecedores ORDER BY ID_Fo
 </div>
 
 <?php if(!empty($msg)): ?>
-    <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm"><?= $msg ?></div>
+    <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm"><?= htmlspecialchars($msg) ?></div>
+<?php endif; ?>
+
+<?php if(!empty($msg_erro)): ?>
+    <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm"><?= htmlspecialchars($msg_erro) ?></div>
 <?php endif; ?>
 
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
@@ -50,15 +78,15 @@ $fornecedores = mysqli_query($con, "SELECT * FROM TB_Fornecedores ORDER BY ID_Fo
         <input type="hidden" name="id_fornecedor" value="<?= (isset($edit_fornecedor['ID_Fornecedor']) ? $edit_fornecedor['ID_Fornecedor'] : '') ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Fornecedor</label>
-            <input type="text" name="For_Nome" required value="<?= (isset($edit_fornecedor['For_Nome']) ? $edit_fornecedor['For_Nome'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="For_Nome" required value="<?= (isset($edit_fornecedor['For_Nome']) ? htmlspecialchars($edit_fornecedor['For_Nome']) : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Telefone</label>
-            <input type="text" name="For_Telefone" value="<?= (isset($edit_fornecedor['For_Telefone']) ? $edit_fornecedor['For_Telefone'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="For_Telefone" value="<?= (isset($edit_fornecedor['For_Telefone']) ? htmlspecialchars($edit_fornecedor['For_Telefone']) : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Endereço</label>
-            <input type="text" name="For_Endereco" value="<?= (isset($edit_fornecedor['For_Endereco']) ? $edit_fornecedor['For_Endereco'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="For_Endereco" value="<?= (isset($edit_fornecedor['For_Endereco']) ? htmlspecialchars($edit_fornecedor['For_Endereco']) : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div class="md:col-span-3 flex items-center gap-3 mt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider"><?= $edit_fornecedor ? 'Atualizar' : 'Salvar Fornecedor' ?></button>

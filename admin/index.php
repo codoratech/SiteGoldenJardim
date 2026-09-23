@@ -24,130 +24,107 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 <!DOCTYPE html>
-<html
-  lang="pt-BR"
-  class="light-style customizer-hide"
-  dir="ltr"
-  data-theme="theme-default"
-  data-assets-path="../assets/"
-  data-template="vertical-menu-template-free"
->
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-    />
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Painel Administrativo Golden Jardim</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              forest: '#0f1710',
+              pine: '#162418',
+              moss: '#b7f052',
+              'moss-dark': '#9cd438',
+              mist: '#f3f7f4'
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              display: ['Sora', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-[#0b120d] text-slate-100 font-sans min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+    <!-- Ambient glow -->
+    <div class="absolute w-[500px] h-[500px] bg-[#b7f052]/10 rounded-full blur-[120px] -top-32 -left-32 pointer-events-none"></div>
+    <div class="absolute w-[400px] h-[400px] bg-[#b7f052]/5 rounded-full blur-[100px] -bottom-32 -right-32 pointer-events-none"></div>
 
-    <title>Login - Golden Jardim</title>
-
-    <meta name="description" content="" />
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Icons. Uncomment required icon fonts -->
-    <link rel="stylesheet" href="../assets/vendor/fonts/boxicons.css" />
-
-    <!-- Core CSS -->
-    <link rel="stylesheet" href="../assets/vendor/css/core.css" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="../assets/css/demo.css" />
-
-    <!-- Vendors CSS -->
-    <link rel="stylesheet" href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
-
-    <!-- Page CSS -->
-    <link rel="stylesheet" href="../assets/vendor/css/pages/page-auth.css" />
-    <!-- Helpers -->
-    <script src="../assets/vendor/js/helpers.js"></script>
-    <script src="../assets/js/config.js"></script>
-  </head>
-
-  <body>
-    <!-- Content -->
-
-    <div class="container-xxl">
-      <div class="authentication-wrapper authentication-basic container-p-y">
-        <div class="authentication-inner">
-          <!-- Register -->
-          <div class="card">
-            <div class="card-body">
-              <!-- Logo -->
-              <div class="app-brand justify-content-center">
-                <a href="../index.html" class="app-brand-link gap-2">
-                  <span class="app-brand-text demo text-body fw-bolder">Golden Jardim</span>
-                </a>
-              </div>
-              <!-- /Logo -->
-
-              <?php if (!empty($erro)): ?>
-                <div class="alert alert-danger mb-3" role="alert">
-                  <?= $erro ?>
+    <div class="w-full max-w-md bg-[#121c14]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl relative z-10">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-[#b7f052] text-[#0f1710] flex items-center justify-center font-bold text-lg">🌿</span>
+                <div>
+                    <h1 class="font-display font-bold text-lg tracking-tight uppercase">Golden Jardim</h1>
+                    <p class="text-xs text-slate-400">Painel Administrativo</p>
                 </div>
-              <?php endif; ?>
-
-              <form id="formAuthentication" class="mb-3" action="" method="POST">
-                <div class="mb-3">
-                  <label for="login" class="form-label">Usuário</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="login"
-                    name="login"
-                    placeholder="Digite seu usuário"
-                    autofocus
-                    required
-                  />
-                </div>
-                <div class="mb-3 form-password-toggle">
-                  <div class="d-flex justify-content-between">
-                    <label class="form-label" for="senha">Senha</label>
-                  </div>
-                  <div class="input-group input-group-merge">
-                    <input
-                      type="password"
-                      id="senha"
-                      class="form-control"
-                      name="senha"
-                      placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                      aria-describedby="senha"
-                      required
-                    />
-                    <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <button class="btn btn-primary d-grid w-100" type="submit">Entrar</button>
-                </div>
-              </form>
-
-              <div class="text-center">
-                <a href="../index.html" class="text-muted">← Voltar para o site</a>
-              </div>
             </div>
-          </div>
+            <!-- Theme toggle button -->
+            <button type="button" id="themeToggle" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors" aria-label="Alternar tema">
+                <span id="sunIcon" class="text-sm">☀️</span>
+                <span id="moonIcon" class="text-sm hidden">🌙</span>
+            </button>
         </div>
-      </div>
+
+        <?php if (!empty($erro)): ?>
+            <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center gap-2">
+                <span>⚠️</span> <?= $erro ?>
+            </div>
+        <?php endif; ?>
+
+        <form action="" method="POST" class="space-y-5">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Usuário / Login</label>
+                <input type="text" name="login" required placeholder="Ex: admin" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#b7f052] transition-colors">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Senha</label>
+                <input type="password" name="senha" required placeholder="••••••••" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#b7f052] transition-colors">
+            </div>
+            <button type="submit" class="w-full bg-[#b7f052] text-[#0f1710] font-bold py-3.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-[#b7f052]/20 flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                Entrar no Painel →
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <a href="../index.html" class="text-xs text-slate-400 hover:text-[#b7f052] transition-colors">← Voltar para o site principal</a>
+        </div>
     </div>
 
-    <!-- Core JS -->
-    <script src="../assets/vendor/libs/jquery/jquery.js"></script>
-    <script src="../assets/vendor/libs/popper/popper.js"></script>
-    <script src="../assets/vendor/js/bootstrap.js"></script>
-    <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-    <script src="../assets/vendor/js/menu.js"></script>
-    <script src="../assets/vendor/js/helpers.js"></script>
+    <script>
+        const html = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
 
-    <!-- Main JS -->
-    <script src="../assets/js/main.js"></script>
-  </body>
+        themeToggle.addEventListener('click', () => {
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+                localStorage.setItem('admin-theme', 'light');
+            } else {
+                html.classList.add('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+                localStorage.setItem('admin-theme', 'dark');
+            }
+        });
+
+        if (localStorage.getItem('admin-theme') === 'light') {
+            html.classList.remove('dark');
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        }
+    </script>
+</body>
 </html>

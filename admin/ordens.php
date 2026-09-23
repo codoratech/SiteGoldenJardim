@@ -1,13 +1,21 @@
 <?php
-include("header.php");
 include("../conexao/banco.php");
 
 $msg = "";
+$msg_erro = "";
+
 if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    mysqli_query($con, "DELETE FROM TB_OrdensServico WHERE ID_Ordem = $id");
-    header("Location: ordens.php");
-    exit();
+    if (!mysqli_query($con, "DELETE FROM TB_OrdensServico WHERE ID_Ordem = $id")) {
+        $msg_erro = "Não foi possível excluir: esta Ordem de Serviço possui registros vinculados. Detalhe: " . mysqli_error($con);
+    } else {
+        $msg = "Ordem de Serviço excluída com sucesso!";
+    }
+
+    if (empty($msg_erro)) {
+        header("Location: ordens.php?ok=1");
+        exit();
+    }
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -18,12 +26,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     if (isset($_POST['id_ordem']) && !empty($_POST['id_ordem'])) {
         $id = intval($_POST['id_ordem']);
-        mysqli_query($con, "UPDATE TB_OrdensServico SET TB_Clientes_ID_Cliente=$cli_id, Or_Status='$status', Ord_ValorTotal=$valor, Ord_Observacoes='$obs' WHERE ID_Ordem=$id");
-        $msg = "Ordem de Serviço atualizada!";
+        if (mysqli_query($con, "UPDATE TB_OrdensServico SET TB_Clientes_ID_Cliente=$cli_id, Or_Status='$status', Ord_ValorTotal=$valor, Ord_Observacoes='$obs' WHERE ID_Ordem=$id")) {
+            header("Location: ordens.php?ok=update");
+            exit();
+        } else {
+            $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
+        }
     } else {
-        mysqli_query($con, "INSERT INTO TB_OrdensServico (TB_Clientes_ID_Cliente, Or_Status, Ord_ValorTotal, Ord_Observacoes) VALUES ($cli_id, '$status', $valor, '$obs')");
-        $msg = "Ordem de Serviço criada com sucesso!";
+        if (mysqli_query($con, "INSERT INTO TB_OrdensServico (TB_Clientes_ID_Cliente, Or_Status, Ord_ValorTotal, Ord_Observacoes) VALUES ($cli_id, '$status', $valor, '$obs')")) {
+            header("Location: ordens.php?ok=insert");
+            exit();
+        } else {
+            $msg_erro = "Erro ao cadastrar: " . mysqli_error($con);
+        }
     }
+}
+
+if (isset($_GET['ok'])) {
+    if ($_GET['ok'] == 'insert') $msg = "Ordem de Serviço criada com sucesso!";
+    if ($_GET['ok'] == 'update') $msg = "Ordem de Serviço atualizada com sucesso!";
+    if ($_GET['ok'] == '1')      $msg = "Ordem de Serviço excluída com sucesso!";
 }
 
 $edit_ordem = null;
@@ -35,6 +57,8 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'editar' && isset($_GET['id'])) {
 
 $clientes = mysqli_query($con, "SELECT * FROM TB_Clientes ORDER BY cli_Nome ASC");
 $ordens = mysqli_query($con, "SELECT o.*, c.cli_Nome FROM TB_OrdensServico o JOIN TB_Clientes c ON o.TB_Clientes_ID_Cliente = c.ID_Cliente ORDER BY o.ID_Ordem DESC");
+
+include("header.php");
 ?>
 
 <div class="mb-8">
@@ -43,7 +67,11 @@ $ordens = mysqli_query($con, "SELECT o.*, c.cli_Nome FROM TB_OrdensServico o JOI
 </div>
 
 <?php if(!empty($msg)): ?>
-    <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm"><?= $msg ?></div>
+    <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm"><?= htmlspecialchars($msg) ?></div>
+<?php endif; ?>
+
+<?php if(!empty($msg_erro)): ?>
+    <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm"><?= htmlspecialchars($msg_erro) ?></div>
 <?php endif; ?>
 
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
@@ -73,7 +101,7 @@ $ordens = mysqli_query($con, "SELECT o.*, c.cli_Nome FROM TB_OrdensServico o JOI
         </div>
         <div class="md:col-span-3">
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Observações</label>
-            <input type="text" name="Ord_Observacoes" value="<?= (isset($edit_ordem['Ord_Observacoes']) ? $edit_ordem['Ord_Observacoes'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="Ord_Observacoes" value="<?= (isset($edit_ordem['Ord_Observacoes']) ? htmlspecialchars($edit_ordem['Ord_Observacoes']) : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div class="md:col-span-3 flex items-center gap-3 mt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider"><?= $edit_ordem ? 'Atualizar OS' : 'Criar OS' ?></button>
@@ -103,7 +131,7 @@ $ordens = mysqli_query($con, "SELECT o.*, c.cli_Nome FROM TB_OrdensServico o JOI
                     <td class="p-4 font-mono text-xs text-[#b7f052]">#<?= $row['ID_Ordem'] ?></td>
                     <td class="p-4 font-bold text-white"><?= htmlspecialchars($row['cli_Nome']) ?></td>
                     <td class="p-4 text-slate-300"><?= date('d/m/Y H:i', strtotime($row['Or_DataServico'])) ?></td>
-                    <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs bg-white/5 border border-white/10"><?= htmlspecialchars($row['Or_Status']) ?></span></td>
+                    <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs bg-white/5 border border-white/10"><?= htmlspecialchars($row['Or_Status']) ?></td>
                     <td class="p-4 font-mono text-emerald-400">R$ <?= number_format($row['Ord_ValorTotal'], 2, ',', '.') ?></td>
                     <td class="p-4 text-slate-300"><?= htmlspecialchars($row['Ord_Observacoes']) ?></td>
                     <td class="p-4 text-center space-x-2">

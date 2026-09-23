@@ -1,13 +1,21 @@
 <?php
-include("header.php");
 include("../conexao/banco.php");
 
 $msg = "";
+$msg_erro = "";
+
 if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    mysqli_query($con, "DELETE FROM TB_Agendamentos WHERE ID_Agendamento = $id");
-    header("Location: agendamentos.php");
-    exit();
+    if (!mysqli_query($con, "DELETE FROM TB_Agendamentos WHERE ID_Agendamento = $id")) {
+        $msg_erro = "Não foi possível excluir: este agendamento possui registros vinculados. Detalhe: " . mysqli_error($con);
+    } else {
+        $msg = "Agendamento excluído com sucesso!";
+    }
+
+    if (empty($msg_erro)) {
+        header("Location: agendamentos.php?ok=1");
+        exit();
+    }
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -19,12 +27,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     if (isset($_POST['id_agendamento']) && !empty($_POST['id_agendamento'])) {
         $id = intval($_POST['id_agendamento']);
-        mysqli_query($con, "UPDATE TB_Agendamentos SET TB_Clientes_ID_Cliente=$cli_id, TB_OrdensServico_ID_Ordem=$os_id, Age_DataAgendada='$data', Age_Status='$status', Age_Observacoes='$obs' WHERE ID_Agendamento=$id");
-        $msg = "Agendamento atualizado!";
+        if (mysqli_query($con, "UPDATE TB_Agendamentos SET TB_Clientes_ID_Cliente=$cli_id, TB_OrdensServico_ID_Ordem=$os_id, Age_DataAgendada='$data', Age_Status='$status', Age_Observacoes='$obs' WHERE ID_Agendamento=$id")) {
+            header("Location: agendamentos.php?ok=update");
+            exit();
+        } else {
+            $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
+        }
     } else {
-        mysqli_query($con, "INSERT INTO TB_Agendamentos (TB_Clientes_ID_Cliente, TB_OrdensServico_ID_Ordem, Age_DataAgendada, Age_Status, Age_Observacoes) VALUES ($cli_id, $os_id, '$data', '$status', '$obs')");
-        $msg = "Agendamento criado com sucesso!";
+        if (mysqli_query($con, "INSERT INTO TB_Agendamentos (TB_Clientes_ID_Cliente, TB_OrdensServico_ID_Ordem, Age_DataAgendada, Age_Status, Age_Observacoes) VALUES ($cli_id, $os_id, '$data', '$status', '$obs')")) {
+            header("Location: agendamentos.php?ok=insert");
+            exit();
+        } else {
+            $msg_erro = "Erro ao cadastrar: " . mysqli_error($con);
+        }
     }
+}
+
+if (isset($_GET['ok'])) {
+    if ($_GET['ok'] == 'insert') $msg = "Agendamento criado com sucesso!";
+    if ($_GET['ok'] == 'update') $msg = "Agendamento atualizado com sucesso!";
+    if ($_GET['ok'] == '1')      $msg = "Agendamento excluído com sucesso!";
 }
 
 $edit_agendamento = null;
@@ -37,6 +59,8 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'editar' && isset($_GET['id'])) {
 $clientes = mysqli_query($con, "SELECT * FROM TB_Clientes ORDER BY cli_Nome ASC");
 $ordens = mysqli_query($con, "SELECT ID_Ordem FROM TB_OrdensServico ORDER BY ID_Ordem DESC");
 $agendamentos = mysqli_query($con, "SELECT a.*, c.cli_Nome FROM TB_Agendamentos a JOIN TB_Clientes c ON a.TB_Clientes_ID_Cliente = c.ID_Cliente ORDER BY a.Age_DataAgendada DESC");
+
+include("header.php");
 ?>
 
 <div class="mb-8">
@@ -45,7 +69,11 @@ $agendamentos = mysqli_query($con, "SELECT a.*, c.cli_Nome FROM TB_Agendamentos 
 </div>
 
 <?php if(!empty($msg)): ?>
-    <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm"><?= $msg ?></div>
+    <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm"><?= htmlspecialchars($msg) ?></div>
+<?php endif; ?>
+
+<?php if(!empty($msg_erro)): ?>
+    <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm"><?= htmlspecialchars($msg_erro) ?></div>
 <?php endif; ?>
 
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
@@ -79,7 +107,7 @@ $agendamentos = mysqli_query($con, "SELECT a.*, c.cli_Nome FROM TB_Agendamentos 
         </div>
         <div class="md:col-span-2">
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Observações</label>
-            <input type="text" name="Age_Observacoes" value="<?= (isset($edit_agendamento['Age_Observacoes']) ? $edit_agendamento['Age_Observacoes'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="Age_Observacoes" value="<?= (isset($edit_agendamento['Age_Observacoes']) ? htmlspecialchars($edit_agendamento['Age_Observacoes']) : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div class="md:col-span-3 flex items-center gap-3 mt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider"><?= $edit_agendamento ? 'Atualizar Agendamento' : 'Salvar Agendamento' ?></button>

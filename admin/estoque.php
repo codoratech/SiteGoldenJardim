@@ -1,13 +1,21 @@
 <?php
-include("header.php");
 include("../conexao/banco.php");
 
 $msg = "";
+$msg_erro = "";
+
 if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    mysqli_query($con, "DELETE FROM TB_Estoque WHERE ID_Estoque = $id");
-    header("Location: estoque.php");
-    exit();
+    if (!mysqli_query($con, "DELETE FROM TB_Estoque WHERE ID_Estoque = $id")) {
+        $msg_erro = "Não foi possível excluir: este registro possui dependências. Detalhe: " . mysqli_error($con);
+    } else {
+        $msg = "Registro excluído com sucesso!";
+    }
+
+    if (empty($msg_erro)) {
+        header("Location: estoque.php?ok=1");
+        exit();
+    }
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -16,12 +24,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     if (isset($_POST['id_estoque']) && !empty($_POST['id_estoque'])) {
         $id = intval($_POST['id_estoque']);
-        mysqli_query($con, "UPDATE TB_Estoque SET Est_Tipo='$tipo', Est_Quantidade=$qtd WHERE ID_Estoque=$id");
-        $msg = "Estoque atualizado!";
+        if (mysqli_query($con, "UPDATE TB_Estoque SET Est_Tipo='$tipo', Est_Quantidade=$qtd WHERE ID_Estoque=$id")) {
+            header("Location: estoque.php?ok=update");
+            exit();
+        } else {
+            $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
+        }
     } else {
-        mysqli_query($con, "INSERT INTO TB_Estoque (Est_Tipo, Est_Quantidade) VALUES ('$tipo', $qtd)");
-        $msg = "Movimentação de estoque registrada!";
+        if (mysqli_query($con, "INSERT INTO TB_Estoque (Est_Tipo, Est_Quantidade) VALUES ('$tipo', $qtd)")) {
+            header("Location: estoque.php?ok=insert");
+            exit();
+        } else {
+            $msg_erro = "Erro ao registrar: " . mysqli_error($con);
+        }
     }
+}
+
+if (isset($_GET['ok'])) {
+    if ($_GET['ok'] == 'insert') $msg = "Movimentação de estoque registrada!";
+    if ($_GET['ok'] == 'update') $msg = "Estoque atualizado com sucesso!";
+    if ($_GET['ok'] == '1')      $msg = "Registro excluído com sucesso!";
 }
 
 $edit_estoque = null;
@@ -32,6 +54,8 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'editar' && isset($_GET['id'])) {
 }
 
 $estoque = mysqli_query($con, "SELECT * FROM TB_Estoque ORDER BY ID_Estoque DESC");
+
+include("header.php");
 ?>
 
 <div class="mb-8">
@@ -40,7 +64,11 @@ $estoque = mysqli_query($con, "SELECT * FROM TB_Estoque ORDER BY ID_Estoque DESC
 </div>
 
 <?php if(!empty($msg)): ?>
-    <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm"><?= $msg ?></div>
+    <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm"><?= htmlspecialchars($msg) ?></div>
+<?php endif; ?>
+
+<?php if(!empty($msg_erro)): ?>
+    <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm"><?= htmlspecialchars($msg_erro) ?></div>
 <?php endif; ?>
 
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
@@ -49,7 +77,7 @@ $estoque = mysqli_query($con, "SELECT * FROM TB_Estoque ORDER BY ID_Estoque DESC
         <input type="hidden" name="id_estoque" value="<?= (isset($edit_estoque['ID_Estoque']) ? $edit_estoque['ID_Estoque'] : '') ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tipo de Movimentação / Item</label>
-            <input type="text" name="Est_Tipo" required value="<?= (isset($edit_estoque['Est_Tipo']) ? $edit_estoque['Est_Tipo'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: Entrada de Mudas">
+            <input type="text" name="Est_Tipo" required value="<?= (isset($edit_estoque['Est_Tipo']) ? htmlspecialchars($edit_estoque['Est_Tipo']) : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: Entrada de Mudas">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Quantidade</label>
