@@ -84,19 +84,28 @@
             if (input.value && !input.value.includes('R$')) {
                 let num = parseFloat(input.value.replace(',', '.'));
                 if (!isNaN(num)) {
+                    num = Math.max(0, num);
                     input.value = 'R$ ' + num.toFixed(2).replace('.', ',');
                 }
             }
 
+            input.addEventListener('input', function() {
+                let val = this.value.replace(/-/g, '');
+                if (val !== this.value) {
+                    this.value = val;
+                }
+            });
+
             input.addEventListener('focus', function() {
                 let val = this.value.replace('R$', '').trim();
-                this.value = val;
+                this.value = val.replace(/-/g, '');
             });
 
             input.addEventListener('blur', function() {
-                let clean = this.value.replace('R$', '').replace(/\s/g, '').replace(',', '.');
+                let clean = this.value.replace('R$', '').replace(/\s/g, '').replace(',', '.').replace(/-/g, '');
                 let num = parseFloat(clean);
                 if (!isNaN(num)) {
+                    num = Math.max(0, num);
                     this.value = 'R$ ' + num.toFixed(2).replace('.', ',');
                 } else if (this.value.trim() === '') {
                     this.value = '';
@@ -108,7 +117,9 @@
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', () => {
                 currencyInputs.forEach(input => {
-                    input.value = input.value.replace('R$', '').trim();
+                    let clean = input.value.replace('R$', '').replace(/\s/g, '').replace(',', '.').replace(/-/g, '');
+                    let num = parseFloat(clean);
+                    input.value = !isNaN(num) ? Math.max(0, num).toFixed(2) : '0.00';
                 });
             });
         });

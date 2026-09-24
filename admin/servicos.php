@@ -21,7 +21,7 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome = mysqli_real_escape_string($con, $_POST['Ser_Nome']);
     $desc = mysqli_real_escape_string($con, $_POST['Ser_Descricao']);
-    $preco = floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Ser_Preco'])));
+    $preco = max(0, floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Ser_Preco']))));
     
     if (isset($_POST['id_servico']) && !empty($_POST['id_servico'])) {
         $id = intval($_POST['id_servico']);

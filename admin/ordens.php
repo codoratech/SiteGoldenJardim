@@ -21,7 +21,7 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cli_id = intval($_POST['TB_Clientes_ID_Cliente']);
     $status = mysqli_real_escape_string($con, $_POST['Or_Status']);
-    $valor = floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Ord_ValorTotal'])));
+    $valor = max(0, floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Ord_ValorTotal']))));
     $obs = mysqli_real_escape_string($con, $_POST['Ord_Observacoes']);
     
     if (isset($_POST['id_ordem']) && !empty($_POST['id_ordem'])) {
