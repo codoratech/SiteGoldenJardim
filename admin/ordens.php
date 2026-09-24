@@ -21,7 +21,7 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cli_id = intval($_POST['TB_Clientes_ID_Cliente']);
     $status = mysqli_real_escape_string($con, $_POST['Or_Status']);
-    $valor = floatval(str_replace(',', '.', $_POST['Ord_ValorTotal']));
+    $valor = floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Ord_ValorTotal'])));
     $obs = mysqli_real_escape_string($con, $_POST['Ord_Observacoes']);
     
     if (isset($_POST['id_ordem']) && !empty($_POST['id_ordem'])) {
@@ -136,7 +136,7 @@ include("header.php");
                     <td class="p-4 text-slate-300"><?= htmlspecialchars($row['Ord_Observacoes']) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="ordens.php?acao=editar&id=<?= $row['ID_Ordem'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="ordens.php?acao=excluir&id=<?= $row['ID_Ordem'] ?>" onclick="return confirm('Excluir OS?');" class="text-red-400 hover:underline text-xs">Excluir</a>
+                        <a href="ordens.php?acao=excluir&id=<?= $row['ID_Ordem'] ?>" class="text-red-400 hover:underline text-xs">Excluir</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>

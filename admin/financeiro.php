@@ -21,7 +21,7 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cli_id = intval($_POST['TB_Clientes_ID_Cliente']);
     $os_id = !empty($_POST['TB_OrdensServico_ID_Ordem']) ? intval($_POST['TB_OrdensServico_ID_Ordem']) : "NULL";
-    $valor = floatval(str_replace(',', '.', $_POST['Con_Valor']));
+    $valor = floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Con_Valor'])));
     $vencimento = mysqli_real_escape_string($con, $_POST['Con_DataVencimento']);
     $status = mysqli_real_escape_string($con, $_POST['Con_Status']);
     $forma = mysqli_real_escape_string($con, $_POST['Con_FormaPagamento']);
@@ -146,7 +146,7 @@ include("header.php");
                     <td class="p-4 text-slate-300"><?= htmlspecialchars($row['Con_FormaPagamento']) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="financeiro.php?acao=editar&id=<?= $row['ID_ContaReceber'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="financeiro.php?acao=excluir&id=<?= $row['ID_ContaReceber'] ?>" onclick="return confirm('Excluir conta?');" class="text-red-400 hover:underline text-xs">Excluir</a>
+                        <a href="financeiro.php?acao=excluir&id=<?= $row['ID_ContaReceber'] ?>" class="text-red-400 hover:underline text-xs">Excluir</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>

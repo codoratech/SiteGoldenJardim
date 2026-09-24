@@ -183,7 +183,7 @@ include("header.php");
                     <td class="p-4 text-slate-300"><?= htmlspecialchars($row['cli_Endereco']) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="clientes.php?acao=editar&id=<?= $row['ID_Cliente'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="clientes.php?acao=excluir&id=<?= $row['ID_Cliente'] ?>" onclick="return confirm('Deseja realmente excluir este cliente?');" class="text-red-400 hover:underline text-xs">Excluir</a>
+                        <a href="clientes.php?acao=excluir&id=<?= $row['ID_Cliente'] ?>" class="text-red-400 hover:underline text-xs">Excluir</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>

@@ -92,11 +92,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </aside>
 
     <!-- Main Wrapper -->
-    <div class="flex-1 flex flex-col lg:pl-64">
+    <div id="mainWrapper" class="flex-1 flex flex-col lg:pl-64 transition-all duration-300">
         <!-- Topbar -->
         <header class="h-20 bg-[#121c14]/90 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 px-6 flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <button id="openSidebar" class="lg:hidden text-slate-300 hover:text-white text-xl">☰</button>
+                <button id="openSidebar" class="text-slate-300 hover:text-white text-xl">☰</button>
                 <h2 class="font-display font-bold text-lg tracking-tight">Painel de Controle</h2>
             </div>
             <div class="flex items-center gap-4">

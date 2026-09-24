@@ -142,7 +142,7 @@ include("header.php");
                     <td class="p-4 text-slate-300"><?= htmlspecialchars($row['Age_Observacoes']) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="agendamentos.php?acao=editar&id=<?= $row['ID_Agendamento'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="agendamentos.php?acao=excluir&id=<?= $row['ID_Agendamento'] ?>" onclick="return confirm('Excluir agendamento?');" class="text-red-400 hover:underline text-xs">Excluir</a>
+                        <a href="agendamentos.php?acao=excluir&id=<?= $row['ID_Agendamento'] ?>" class="text-red-400 hover:underline text-xs">Excluir</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>

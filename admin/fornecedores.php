@@ -117,7 +117,7 @@ include("header.php");
                     <td class="p-4 text-slate-300"><?= htmlspecialchars($row['For_Endereco']) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="fornecedores.php?acao=editar&id=<?= $row['ID_Fornecedor'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="fornecedores.php?acao=excluir&id=<?= $row['ID_Fornecedor'] ?>" onclick="return confirm('Excluir fornecedor?');" class="text-red-400 hover:underline text-xs">Excluir</a>
+                        <a href="fornecedores.php?acao=excluir&id=<?= $row['ID_Fornecedor'] ?>" class="text-red-400 hover:underline text-xs">Excluir</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>

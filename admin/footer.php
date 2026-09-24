@@ -38,15 +38,129 @@
         }
 
         const sidebar = document.getElementById('sidebar');
+        const mainWrapper = document.getElementById('mainWrapper');
         const openSidebar = document.getElementById('openSidebar');
         const closeSidebar = document.getElementById('closeSidebar');
 
         if(openSidebar && sidebar) {
-            openSidebar.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+            openSidebar.addEventListener('click', () => {
+                if (window.innerWidth >= 1024) {
+                    sidebar.classList.toggle('-translate-x-full');
+                    if (mainWrapper) {
+                        mainWrapper.classList.toggle('lg:pl-64');
+                        mainWrapper.classList.toggle('lg:pl-0');
+                    }
+                } else {
+                    sidebar.classList.remove('-translate-x-full');
+                }
+            });
         }
         if(closeSidebar && sidebar) {
             closeSidebar.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
         }
+
+        // Phone formatting & validation (max 11 digits, numbers only, mask (XX) XXXXX-XXXX)
+        const phoneInputs = document.querySelectorAll('input[name*="Telefone"], input[name*="telefone"]');
+        phoneInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                let v = this.value.replace(/\D/g, '').substring(0, 11);
+                if (v.length > 10) {
+                    this.value = v.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+                } else if (v.length > 6) {
+                    this.value = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+                } else if (v.length > 2) {
+                    this.value = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+                } else if (v.length > 0) {
+                    this.value = v.replace(/^(\d*)/, '($1');
+                } else {
+                    this.value = '';
+                }
+            });
+        });
+
+        // Currency formatting on blur (R$)
+        const currencyInputs = document.querySelectorAll('input[name*="Preco"], input[name*="preço"], input[name*="Valor"], input[name*="valor"]');
+        currencyInputs.forEach(input => {
+            if (input.value && !input.value.includes('R$')) {
+                let num = parseFloat(input.value.replace(',', '.'));
+                if (!isNaN(num)) {
+                    input.value = 'R$ ' + num.toFixed(2).replace('.', ',');
+                }
+            }
+
+            input.addEventListener('focus', function() {
+                let val = this.value.replace('R$', '').trim();
+                this.value = val;
+            });
+
+            input.addEventListener('blur', function() {
+                let clean = this.value.replace('R$', '').replace(/\s/g, '').replace(',', '.');
+                let num = parseFloat(clean);
+                if (!isNaN(num)) {
+                    this.value = 'R$ ' + num.toFixed(2).replace('.', ',');
+                } else if (this.value.trim() === '') {
+                    this.value = '';
+                }
+            });
+        });
+
+        // Strip R$ on form submit
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', () => {
+                currencyInputs.forEach(input => {
+                    input.value = input.value.replace('R$', '').trim();
+                });
+            });
+        });
+
+        // Custom Delete Confirmation Modal
+        const deleteModalHTML = `
+        <div id="deleteModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden">
+            <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center font-bold text-lg">⚠️</span>
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-white">Confirmação de Exclusão</h3>
+                        <p class="text-xs text-slate-400" id="deleteModalText">Tem certeza que deseja excluir este registro?</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-3 mt-6">
+                    <button type="button" id="cancelDeleteBtn" class="bg-white/10 text-slate-300 font-bold py-2 px-4 rounded-xl hover:bg-white/20 transition-all text-xs uppercase tracking-wider">Cancelar</button>
+                    <a id="confirmDeleteBtn" href="#" class="bg-red-500 text-white font-bold py-2 px-4 rounded-xl hover:bg-red-600 transition-all text-xs uppercase tracking-wider">Sim, Excluir</a>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', deleteModalHTML);
+
+        const deleteModal = document.getElementById('deleteModal');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const deleteModalText = document.getElementById('deleteModalText');
+
+        document.querySelectorAll('a[href*="acao=excluir"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                let customMsg = this.getAttribute('data-confirm-msg');
+                if (!customMsg && this.onclick) {
+                    let onclickStr = this.getAttribute('onclick');
+                    let match = onclickStr && onclickStr.match(/confirm\('([^']+)'\)/);
+                    if (match) customMsg = match[1];
+                }
+                deleteModalText.textContent = customMsg || 'Tem certeza que deseja excluir este registro?';
+                confirmDeleteBtn.href = this.href;
+                deleteModal.classList.remove('hidden');
+            });
+        });
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+        });
+
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) {
+                deleteModal.classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>

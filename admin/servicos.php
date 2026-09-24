@@ -21,7 +21,7 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome = mysqli_real_escape_string($con, $_POST['Ser_Nome']);
     $desc = mysqli_real_escape_string($con, $_POST['Ser_Descricao']);
-    $preco = floatval(str_replace(',', '.', $_POST['Ser_Preco']));
+    $preco = floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Ser_Preco'])));
     
     if (isset($_POST['id_servico']) && !empty($_POST['id_servico'])) {
         $id = intval($_POST['id_servico']);
@@ -117,7 +117,7 @@ include("header.php");
                     <td class="p-4 font-mono text-emerald-400">R$ <?= number_format($row['Ser_Preco'], 2, ',', '.') ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="servicos.php?acao=editar&id=<?= $row['ID_Servico'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="servicos.php?acao=excluir&id=<?= $row['ID_Servico'] ?>" onclick="return confirm('Excluir serviço?');" class="text-red-400 hover:underline text-xs">Excluir</a>
+                        <a href="servicos.php?acao=excluir&id=<?= $row['ID_Servico'] ?>" class="text-red-400 hover:underline text-xs">Excluir</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>

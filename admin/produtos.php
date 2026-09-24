@@ -21,7 +21,7 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome = mysqli_real_escape_string($con, $_POST['Pro_Nome']);
     $desc = mysqli_real_escape_string($con, $_POST['Pro_Descricao']);
-    $preco = floatval(str_replace(',', '.', $_POST['Pro_Preco']));
+    $preco = floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Pro_Preco'])));
     
     if (isset($_POST['id_produto']) && !empty($_POST['id_produto'])) {
         $id = intval($_POST['id_produto']);
@@ -117,7 +117,7 @@ include("header.php");
                     <td class="p-4 font-mono text-emerald-400">R$ <?= number_format($row['Pro_Preco'], 2, ',', '.') ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="produtos.php?acao=editar&id=<?= $row['ID_Produto'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="produtos.php?acao=excluir&id=<?= $row['ID_Produto'] ?>" onclick="return confirm('Excluir produto?');" class="text-red-400 hover:underline text-xs">Excluir</a>
+                        <a href="produtos.php?acao=excluir&id=<?= $row['ID_Produto'] ?>" class="text-red-400 hover:underline text-xs">Excluir</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>
