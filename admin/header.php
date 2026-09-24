@@ -82,8 +82,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <a href="financeiro.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'financeiro.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
                 <span>💰</span> Contas a Receber
             </a>
+            <a href="cadastrar_login.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'cadastrar_login.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                <span>➕</span> Cadastrar Login
+            </a>
             <a href="logins.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'logins.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>🔑</span> Logins
+                <span>🔑</span> Logins Existentes
             </a>
         </nav>
 
