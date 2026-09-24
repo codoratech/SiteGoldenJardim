@@ -172,6 +172,17 @@
                 deleteModal.classList.add('hidden');
             }
         });
+
+        // Logins dropdown toggle
+        const loginsDropdownBtn = document.getElementById('loginsDropdownBtn');
+        const loginsSubmenu = document.getElementById('loginsSubmenu');
+        const loginsArrow = document.getElementById('loginsArrow');
+        if (loginsDropdownBtn && loginsSubmenu) {
+            loginsDropdownBtn.addEventListener('click', () => {
+                loginsSubmenu.classList.toggle('hidden');
+                loginsArrow.classList.toggle('rotate-180');
+            });
+        }
     </script>
 </body>
 </html>

@@ -82,12 +82,21 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <a href="financeiro.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'financeiro.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
                 <span>💰</span> Contas a Receber
             </a>
-            <a href="cadastrar_login.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'cadastrar_login.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>➕</span> Cadastrar Login
-            </a>
-            <a href="logins.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'logins.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>🔑</span> Logins Existentes
-            </a>
+            <?php $is_logins_page = ($current_page == 'cadastrar_login.php' || $current_page == 'logins.php'); ?>
+            <div class="space-y-1">
+                <button type="button" id="loginsDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_logins_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                    <span class="flex items-center gap-3"><span>🔑</span> Logins</span>
+                    <span id="loginsArrow" class="transform transition-transform text-xs <?= $is_logins_page ? 'rotate-180' : '' ?>">▼</span>
+                </button>
+                <div id="loginsSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_logins_page ? '' : 'hidden' ?>">
+                    <a href="cadastrar_login.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_login.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>➕</span> Cadastrar Login
+                    </a>
+                    <a href="logins.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'logins.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>📋</span> Logins Existentes
+                    </a>
+                </div>
+            </div>
         </nav>
 
         <div class="p-4 border-t border-white/10">
