@@ -182,8 +182,18 @@
             const arrow = document.getElementById(arrowId);
             if (btn && submenu) {
                 btn.addEventListener('click', () => {
-                    submenu.classList.toggle('hidden');
-                    if (arrow) arrow.classList.toggle('rotate-180');
+                    if (sidebar && sidebar.classList.contains('collapsed')) {
+                        sidebar.classList.remove('collapsed');
+                        if (mainWrapper) {
+                            mainWrapper.classList.remove('lg:pl-20');
+                            mainWrapper.classList.add('lg:pl-64');
+                        }
+                        submenu.classList.remove('hidden');
+                        if (arrow) arrow.classList.add('rotate-180');
+                    } else {
+                        submenu.classList.toggle('hidden');
+                        if (arrow) arrow.classList.toggle('rotate-180');
+                    }
                 });
             }
         }
