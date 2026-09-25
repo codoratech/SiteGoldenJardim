@@ -44,14 +44,16 @@
 
         if(openSidebar && sidebar) {
             openSidebar.addEventListener('click', () => {
+                console.log('Sidebar toggle clicked. Window width:', window.innerWidth);
                 if (window.innerWidth >= 1024) {
-                    sidebar.classList.toggle('-translate-x-full');
+                    sidebar.classList.toggle('collapsed');
+                    console.log('Sidebar collapsed class toggled. Has collapsed:', sidebar.classList.contains('collapsed'));
                     if (mainWrapper) {
                         mainWrapper.classList.toggle('lg:pl-64');
-                        mainWrapper.classList.toggle('lg:pl-0');
+                        mainWrapper.classList.toggle('lg:pl-20');
                     }
                 } else {
-                    sidebar.classList.remove('-translate-x-full');
+                    sidebar.classList.toggle('-translate-x-full');
                 }
             });
         }
