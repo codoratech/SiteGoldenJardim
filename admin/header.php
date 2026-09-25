@@ -53,10 +53,77 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
         #sidebar.collapsed nav a,
         #sidebar.collapsed nav button,
-        #sidebar.collapsed .border-t a {
+        #sidebar.collapsed .border-t a,
+        #sidebar.collapsed div.border-b > a {
             justify-content: center !important;
             padding-left: 0.75rem !important;
             padding-right: 0.75rem !important;
+        }
+
+        /* Light Mode Styles (when html does NOT have class="dark") */
+        html:not(.dark) body {
+            background-color: #f3f7f4 !important;
+            color: #1e293b !important;
+        }
+        html:not(.dark) #sidebar {
+            background-color: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            color: #1e293b !important;
+        }
+        html:not(.dark) #sidebar nav a,
+        html:not(.dark) #sidebar nav button {
+            color: #475569 !important;
+        }
+        html:not(.dark) #sidebar nav a:hover,
+        html:not(.dark) #sidebar nav button:hover {
+            background-color: rgba(0,0,0,0.05) !important;
+            color: #0f1710 !important;
+        }
+        html:not(.dark) #mainWrapper header {
+            background-color: rgba(255,255,255,0.95) !important;
+            border-color: #e2e8f0 !important;
+            color: #1e293b !important;
+        }
+        html:not(.dark) .bg-\[\#121c14\] {
+            background-color: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            color: #1e293b !important;
+        }
+        html:not(.dark) .bg-black\/30,
+        html:not(.dark) input,
+        html:not(.dark) select,
+        html:not(.dark) textarea {
+            background-color: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            color: #0f1710 !important;
+        }
+        html:not(.dark) table tr {
+            border-color: #e2e8f0 !important;
+        }
+        html:not(.dark) thead tr {
+            background-color: #f1f5f9 !important;
+            color: #475569 !important;
+        }
+        html:not(.dark) .text-slate-400 {
+            color: #64748b !important;
+        }
+        html:not(.dark) .text-slate-300 {
+            color: #334155 !important;
+        }
+        html:not(.dark) .text-white {
+            color: #0f1710 !important;
+        }
+        html:not(.dark) .border-white\/10 {
+            border-color: #e2e8f0 !important;
+        }
+        html:not(.dark) .border-white\/5 {
+            border-color: #f1f5f9 !important;
+        }
+        html:not(.dark) .bg-white\/5 {
+            background-color: rgba(0,0,0,0.03) !important;
+        }
+        html:not(.dark) .bg-white\/10 {
+            background-color: rgba(0,0,0,0.06) !important;
         }
     </style>
 </head>
@@ -65,13 +132,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <!-- Sidebar -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#121c14] border-r border-white/10 flex flex-col lg:translate-x-0 -translate-x-full">
         <div class="p-6 flex items-center justify-between border-b border-white/10">
-            <div class="flex items-center gap-3">
+            <a href="dashboard.php" class="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer">
                 <span class="w-9 h-9 rounded-xl bg-[#b7f052] text-[#0f1710] flex items-center justify-center font-bold shrink-0">🌿</span>
                 <div class="sidebar-text">
                     <span class="font-display font-bold text-sm tracking-tight uppercase block">Golden Jardim</span>
                     <span class="text-[10px] text-slate-400 sidebar-subtitle">Admin v2.0</span>
                 </div>
-            </div>
+            </a>
             <button id="closeSidebar" class="lg:hidden text-slate-400 hover:text-white">✕</button>
         </div>
 
