@@ -173,16 +173,28 @@
             }
         });
 
-        // Logins dropdown toggle
-        const loginsDropdownBtn = document.getElementById('loginsDropdownBtn');
-        const loginsSubmenu = document.getElementById('loginsSubmenu');
-        const loginsArrow = document.getElementById('loginsArrow');
-        if (loginsDropdownBtn && loginsSubmenu) {
-            loginsDropdownBtn.addEventListener('click', () => {
-                loginsSubmenu.classList.toggle('hidden');
-                loginsArrow.classList.toggle('rotate-180');
-            });
+        // Dropdown toggle helper
+        function setupDropdown(btnId, submenuId, arrowId) {
+            const btn = document.getElementById(btnId);
+            const submenu = document.getElementById(submenuId);
+            const arrow = document.getElementById(arrowId);
+            if (btn && submenu) {
+                btn.addEventListener('click', () => {
+                    submenu.classList.toggle('hidden');
+                    if (arrow) arrow.classList.toggle('rotate-180');
+                });
+            }
         }
+
+        setupDropdown('clientesDropdownBtn', 'clientesSubmenu', 'clientesArrow');
+        setupDropdown('produtosDropdownBtn', 'produtosSubmenu', 'produtosArrow');
+        setupDropdown('servicosDropdownBtn', 'servicosSubmenu', 'servicosArrow');
+        setupDropdown('fornecedoresDropdownBtn', 'fornecedoresSubmenu', 'fornecedoresArrow');
+        setupDropdown('ordensDropdownBtn', 'ordensSubmenu', 'ordensArrow');
+        setupDropdown('agendamentosDropdownBtn', 'agendamentosSubmenu', 'agendamentosArrow');
+        setupDropdown('estoqueDropdownBtn', 'estoqueSubmenu', 'estoqueArrow');
+        setupDropdown('financeiroDropdownBtn', 'financeiroSubmenu', 'financeiroArrow');
+        setupDropdown('loginsDropdownBtn', 'loginsSubmenu', 'loginsArrow');
     </script>
 </body>
 </html>

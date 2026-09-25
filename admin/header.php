@@ -58,30 +58,144 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'dashboard.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
                 <span>📊</span> Dashboard
             </a>
-            <a href="clientes.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'clientes.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>👥</span> Clientes
-            </a>
-            <a href="produtos.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'produtos.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>📦</span> Produtos
-            </a>
-            <a href="servicos.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'servicos.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>🌱</span> Serviços
-            </a>
-            <a href="fornecedores.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'fornecedores.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>🏭</span> Fornecedores
-            </a>
-            <a href="ordens.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'ordens.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>📋</span> Ordens de Serviço
-            </a>
-            <a href="agendamentos.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'agendamentos.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>📅</span> Agendamentos
-            </a>
-            <a href="estoque.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'estoque.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>📦</span> Estoque
-            </a>
-            <a href="financeiro.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'financeiro.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>💰</span> Contas a Receber
-            </a>
+
+            <!-- Clientes -->
+            <?php $is_clientes_page = ($current_page == 'cadastrar_cliente.php' || $current_page == 'clientes.php'); ?>
+            <div class="space-y-1">
+                <button type="button" id="clientesDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_clientes_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                    <span class="flex items-center gap-3"><span>👥</span> Clientes</span>
+                    <span id="clientesArrow" class="transform transition-transform text-xs <?= $is_clientes_page ? 'rotate-180' : '' ?>">▼</span>
+                </button>
+                <div id="clientesSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_clientes_page ? '' : 'hidden' ?>">
+                    <a href="cadastrar_cliente.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_cliente.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>➕</span> Cadastrar Cliente
+                    </a>
+                    <a href="clientes.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'clientes.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>📋</span> Clientes Existentes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Produtos -->
+            <?php $is_produtos_page = ($current_page == 'cadastrar_produto.php' || $current_page == 'produtos.php'); ?>
+            <div class="space-y-1">
+                <button type="button" id="produtosDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_produtos_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                    <span class="flex items-center gap-3"><span>📦</span> Produtos</span>
+                    <span id="produtosArrow" class="transform transition-transform text-xs <?= $is_produtos_page ? 'rotate-180' : '' ?>">▼</span>
+                </button>
+                <div id="produtosSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_produtos_page ? '' : 'hidden' ?>">
+                    <a href="cadastrar_produto.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_produto.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>➕</span> Cadastrar Produto
+                    </a>
+                    <a href="produtos.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'produtos.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>📋</span> Produtos Existentes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Serviços -->
+            <?php $is_servicos_page = ($current_page == 'cadastrar_servico.php' || $current_page == 'servicos.php'); ?>
+            <div class="space-y-1">
+                <button type="button" id="servicosDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_servicos_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                    <span class="flex items-center gap-3"><span>🌱</span> Serviços</span>
+                    <span id="servicosArrow" class="transform transition-transform text-xs <?= $is_servicos_page ? 'rotate-180' : '' ?>">▼</span>
+                </button>
+                <div id="servicosSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_servicos_page ? '' : 'hidden' ?>">
+                    <a href="cadastrar_servico.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_servico.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>➕</span> Cadastrar Serviço
+                    </a>
+                    <a href="servicos.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'servicos.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>📋</span> Serviços Existentes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Fornecedores -->
+            <?php $is_fornecedores_page = ($current_page == 'cadastrar_fornecedor.php' || $current_page == 'fornecedores.php'); ?>
+            <div class="space-y-1">
+                <button type="button" id="fornecedoresDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_fornecedores_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                    <span class="flex items-center gap-3"><span>🏭</span> Fornecedores</span>
+                    <span id="fornecedoresArrow" class="transform transition-transform text-xs <?= $is_fornecedores_page ? 'rotate-180' : '' ?>">▼</span>
+                </button>
+                <div id="fornecedoresSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_fornecedores_page ? '' : 'hidden' ?>">
+                    <a href="cadastrar_fornecedor.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_fornecedor.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>➕</span> Cadastrar Fornecedor
+                    </a>
+                    <a href="fornecedores.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'fornecedores.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>📋</span> Fornecedores Existentes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Ordens de Serviço -->
+            <?php $is_ordens_page = ($current_page == 'cadastrar_ordem.php' || $current_page == 'ordens.php'); ?>
+            <div class="space-y-1">
+                <button type="button" id="ordensDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_ordens_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                    <span class="flex items-center gap-3"><span>📋</span> Ordens de Serviço</span>
+                    <span id="ordensArrow" class="transform transition-transform text-xs <?= $is_ordens_page ? 'rotate-180' : '' ?>">▼</span>
+                </button>
+                <div id="ordensSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_ordens_page ? '' : 'hidden' ?>">
+                    <a href="cadastrar_ordem.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_ordem.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>➕</span> Cadastrar Ordem
+                    </a>
+                    <a href="ordens.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'ordens.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>📋</span> Ordens Existentes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Agendamentos -->
+            <?php $is_agendamentos_page = ($current_page == 'cadastrar_agendamento.php' || $current_page == 'agendamentos.php'); ?>
+            <div class="space-y-1">
+                <button type="button" id="agendamentosDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_agendamentos_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                    <span class="flex items-center gap-3"><span>📅</span> Agendamentos</span>
+                    <span id="agendamentosArrow" class="transform transition-transform text-xs <?= $is_agendamentos_page ? 'rotate-180' : '' ?>">▼</span>
+                </button>
+                <div id="agendamentosSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_agendamentos_page ? '' : 'hidden' ?>">
+                    <a href="cadastrar_agendamento.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_agendamento.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>➕</span> Cadastrar Agendamento
+                    </a>
+                    <a href="agendamentos.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'agendamentos.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>📋</span> Agendamentos Existentes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Estoque -->
+            <?php $is_estoque_page = ($current_page == 'cadastrar_estoque.php' || $current_page == 'estoque.php'); ?>
+            <div class="space-y-1">
+                <button type="button" id="estoqueDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_estoque_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                    <span class="flex items-center gap-3"><span>📦</span> Estoque</span>
+                    <span id="estoqueArrow" class="transform transition-transform text-xs <?= $is_estoque_page ? 'rotate-180' : '' ?>">▼</span>
+                </button>
+                <div id="estoqueSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_estoque_page ? '' : 'hidden' ?>">
+                    <a href="cadastrar_estoque.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_estoque.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>➕</span> Cadastrar Movimentação
+                    </a>
+                    <a href="estoque.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'estoque.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>📋</span> Estoque Existente
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contas a Receber / Financeiro -->
+            <?php $is_financeiro_page = ($current_page == 'cadastrar_conta.php' || $current_page == 'financeiro.php'); ?>
+            <div class="space-y-1">
+                <button type="button" id="financeiroDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_financeiro_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                    <span class="flex items-center gap-3"><span>💰</span> Contas a Receber</span>
+                    <span id="financeiroArrow" class="transform transition-transform text-xs <?= $is_financeiro_page ? 'rotate-180' : '' ?>">▼</span>
+                </button>
+                <div id="financeiroSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_financeiro_page ? '' : 'hidden' ?>">
+                    <a href="cadastrar_conta.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_conta.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>➕</span> Cadastrar Conta
+                    </a>
+                    <a href="financeiro.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'financeiro.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+                        <span>📋</span> Contas Existentes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Logins -->
             <?php $is_logins_page = ($current_page == 'cadastrar_login.php' || $current_page == 'logins.php'); ?>
             <div class="space-y-1">
                 <button type="button" id="loginsDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_logins_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">

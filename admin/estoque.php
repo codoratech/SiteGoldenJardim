@@ -18,30 +18,20 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
     }
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id_estoque'])) {
+    $id = intval($_POST['id_estoque']);
     $tipo = mysqli_real_escape_string($con, $_POST['Est_Tipo']);
     $qtd = intval($_POST['Est_Quantidade']);
     
-    if (isset($_POST['id_estoque']) && !empty($_POST['id_estoque'])) {
-        $id = intval($_POST['id_estoque']);
-        if (mysqli_query($con, "UPDATE TB_Estoque SET Est_Tipo='$tipo', Est_Quantidade=$qtd WHERE ID_Estoque=$id")) {
-            header("Location: estoque.php?ok=update");
-            exit();
-        } else {
-            $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
-        }
+    if (mysqli_query($con, "UPDATE TB_Estoque SET Est_Tipo='$tipo', Est_Quantidade=$qtd WHERE ID_Estoque=$id")) {
+        header("Location: estoque.php?ok=update");
+        exit();
     } else {
-        if (mysqli_query($con, "INSERT INTO TB_Estoque (Est_Tipo, Est_Quantidade) VALUES ('$tipo', $qtd)")) {
-            header("Location: estoque.php?ok=insert");
-            exit();
-        } else {
-            $msg_erro = "Erro ao registrar: " . mysqli_error($con);
-        }
+        $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
     }
 }
 
 if (isset($_GET['ok'])) {
-    if ($_GET['ok'] == 'insert') $msg = "Movimentação de estoque registrada!";
     if ($_GET['ok'] == 'update') $msg = "Estoque atualizado com sucesso!";
     if ($_GET['ok'] == '1')      $msg = "Registro excluído com sucesso!";
 }
@@ -59,8 +49,8 @@ include("header.php");
 ?>
 
 <div class="mb-8">
-    <h1 class="font-display font-bold text-2xl md:text-3xl tracking-tight mb-1">Controle de Estoque</h1>
-    <p class="text-slate-400 text-sm">Gerenciamento de estoque de plantas, adubos, ferramentas e insumos.</p>
+    <h1 class="font-display font-bold text-2xl md:text-3xl tracking-tight mb-1">Estoque Existente</h1>
+    <p class="text-slate-400 text-sm">Visualize, edite ou gerencie os registros e movimentações de estoque.</p>
 </div>
 
 <?php if(!empty($msg)): ?>
@@ -71,27 +61,32 @@ include("header.php");
     <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm"><?= htmlspecialchars($msg_erro) ?></div>
 <?php endif; ?>
 
-<div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
-    <h3 class="font-display font-bold text-lg mb-4"><?= $edit_estoque ? 'Editar Movimentação' : 'Nova Movimentação de Estoque' ?></h3>
+<?php if($edit_estoque): ?>
+<div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-3xl">
+    <h3 class="font-display font-bold text-lg mb-4">Editar Movimentação (#<?= $edit_estoque['ID_Estoque'] ?>)</h3>
     <form action="estoque.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="hidden" name="id_estoque" value="<?= (isset($edit_estoque['ID_Estoque']) ? $edit_estoque['ID_Estoque'] : '') ?>">
+        <input type="hidden" name="id_estoque" value="<?= $edit_estoque['ID_Estoque'] ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tipo de Movimentação / Item</label>
-            <input type="text" name="Est_Tipo" required value="<?= (isset($edit_estoque['Est_Tipo']) ? htmlspecialchars($edit_estoque['Est_Tipo']) : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: Entrada de Mudas">
+            <input type="text" name="Est_Tipo" required value="<?= htmlspecialchars($edit_estoque['Est_Tipo']) ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Quantidade</label>
-            <input type="number" name="Est_Quantidade" required value="<?= (isset($edit_estoque['Est_Quantidade']) ? $edit_estoque['Est_Quantidade'] : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="0">
+            <input type="number" name="Est_Quantidade" required value="<?= $edit_estoque['Est_Quantidade'] ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
-        <div class="md:col-span-2 flex items-center gap-3 mt-2">
-            <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider"><?= $edit_estoque ? 'Atualizar' : 'Salvar Registro' ?></button>
-            <?php if($edit_estoque): ?><a href="estoque.php" class="bg-white/10 text-slate-300 font-bold py-2.5 px-6 rounded-xl hover:bg-white/25 transition-all text-xs uppercase tracking-wider">Cancelar</a><?php endif; ?>
+        <div class="md:col-span-2 flex items-center gap-3 pt-2">
+            <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider">Atualizar</button>
+            <a href="estoque.php" class="bg-white/10 text-slate-300 font-bold py-2.5 px-6 rounded-xl hover:bg-white/25 transition-all text-xs uppercase tracking-wider">Cancelar</a>
         </div>
     </form>
 </div>
+<?php endif; ?>
 
-<div class="bg-[#121c14] border border-white/10 rounded-2xl overflow-hidden">
-    <div class="p-6 border-b border-white/10"><h3 class="font-display font-bold text-lg">Registros de Estoque</h3></div>
+<div class="bg-[#121c14] border border-white/10 rounded-2xl overflow-hidden mb-8">
+    <div class="p-6 border-b border-white/10 flex items-center justify-between">
+        <h3 class="font-display font-bold text-lg">Registros de Estoque</h3>
+        <a href="cadastrar_estoque.php" class="bg-[#b7f052] text-[#0f1710] font-bold py-2 px-4 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider">+ Nova Movimentação</a>
+    </div>
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
@@ -112,7 +107,7 @@ include("header.php");
                     <td class="p-4 text-slate-300"><?= date('d/m/Y H:i', strtotime($row['Est_DataMovimentacao'])) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="estoque.php?acao=editar&id=<?= $row['ID_Estoque'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="estoque.php?acao=excluir&id=<?= $row['ID_Estoque'] ?>" class="text-red-400 hover:underline text-xs">Excluir</a>
+                        <a href="estoque.php?acao=excluir&id=<?= $row['ID_Estoque'] ?>" class="text-red-400 hover:underline text-xs" data-confirm-msg="Tem certeza que deseja excluir este registro de estoque?">Excluir</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>

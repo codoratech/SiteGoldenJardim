@@ -18,31 +18,21 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
     }
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id_fornecedor'])) {
+    $id = intval($_POST['id_fornecedor']);
     $nome = mysqli_real_escape_string($con, $_POST['For_Nome']);
     $telefone = mysqli_real_escape_string($con, $_POST['For_Telefone']);
     $endereco = mysqli_real_escape_string($con, $_POST['For_Endereco']);
     
-    if (isset($_POST['id_fornecedor']) && !empty($_POST['id_fornecedor'])) {
-        $id = intval($_POST['id_fornecedor']);
-        if (mysqli_query($con, "UPDATE TB_Fornecedores SET For_Nome='$nome', For_Telefone='$telefone', For_Endereco='$endereco' WHERE ID_Fornecedor=$id")) {
-            header("Location: fornecedores.php?ok=update");
-            exit();
-        } else {
-            $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
-        }
+    if (mysqli_query($con, "UPDATE TB_Fornecedores SET For_Nome='$nome', For_Telefone='$telefone', For_Endereco='$endereco' WHERE ID_Fornecedor=$id")) {
+        header("Location: fornecedores.php?ok=update");
+        exit();
     } else {
-        if (mysqli_query($con, "INSERT INTO TB_Fornecedores (For_Nome, For_Telefone, For_Endereco) VALUES ('$nome', '$telefone', '$endereco')")) {
-            header("Location: fornecedores.php?ok=insert");
-            exit();
-        } else {
-            $msg_erro = "Erro ao cadastrar: " . mysqli_error($con);
-        }
+        $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
     }
 }
 
 if (isset($_GET['ok'])) {
-    if ($_GET['ok'] == 'insert') $msg = "Fornecedor cadastrado com sucesso!";
     if ($_GET['ok'] == 'update') $msg = "Fornecedor atualizado com sucesso!";
     if ($_GET['ok'] == '1')      $msg = "Fornecedor excluído com sucesso!";
 }
@@ -60,8 +50,8 @@ include("header.php");
 ?>
 
 <div class="mb-8">
-    <h1 class="font-display font-bold text-2xl md:text-3xl tracking-tight mb-1">Gerenciamento de Fornecedores</h1>
-    <p class="text-slate-400 text-sm">Fornecedores de mudas, insumos, ferramentas e equipamentos.</p>
+    <h1 class="font-display font-bold text-2xl md:text-3xl tracking-tight mb-1">Fornecedores Existentes</h1>
+    <p class="text-slate-400 text-sm">Visualize, edite ou gerencie os fornecedores cadastrados na Golden Jardim.</p>
 </div>
 
 <?php if(!empty($msg)): ?>
@@ -72,31 +62,36 @@ include("header.php");
     <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm"><?= htmlspecialchars($msg_erro) ?></div>
 <?php endif; ?>
 
-<div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8">
-    <h3 class="font-display font-bold text-lg mb-4"><?= $edit_fornecedor ? 'Editar Fornecedor' : 'Novo Fornecedor' ?></h3>
-    <form action="fornecedores.php" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input type="hidden" name="id_fornecedor" value="<?= (isset($edit_fornecedor['ID_Fornecedor']) ? $edit_fornecedor['ID_Fornecedor'] : '') ?>">
+<?php if($edit_fornecedor): ?>
+<div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-3xl">
+    <h3 class="font-display font-bold text-lg mb-4">Editar Fornecedor (#<?= $edit_fornecedor['ID_Fornecedor'] ?>)</h3>
+    <form action="fornecedores.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="hidden" name="id_fornecedor" value="<?= $edit_fornecedor['ID_Fornecedor'] ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Fornecedor</label>
-            <input type="text" name="For_Nome" required value="<?= (isset($edit_fornecedor['For_Nome']) ? htmlspecialchars($edit_fornecedor['For_Nome']) : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="For_Nome" required value="<?= htmlspecialchars($edit_fornecedor['For_Nome']) ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Telefone</label>
-            <input type="text" name="For_Telefone" value="<?= (isset($edit_fornecedor['For_Telefone']) ? htmlspecialchars($edit_fornecedor['For_Telefone']) : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="For_Telefone" value="<?= htmlspecialchars($edit_fornecedor['For_Telefone']) ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
-        <div>
+        <div class="md:col-span-2">
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Endereço</label>
-            <input type="text" name="For_Endereco" value="<?= (isset($edit_fornecedor['For_Endereco']) ? htmlspecialchars($edit_fornecedor['For_Endereco']) : '') ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="For_Endereco" value="<?= htmlspecialchars($edit_fornecedor['For_Endereco']) ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
-        <div class="md:col-span-3 flex items-center gap-3 mt-2">
-            <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider"><?= $edit_fornecedor ? 'Atualizar' : 'Salvar Fornecedor' ?></button>
-            <?php if($edit_fornecedor): ?><a href="fornecedores.php" class="bg-white/10 text-slate-300 font-bold py-2.5 px-6 rounded-xl hover:bg-white/25 transition-all text-xs uppercase tracking-wider">Cancelar</a><?php endif; ?>
+        <div class="md:col-span-2 flex items-center gap-3 pt-2">
+            <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider">Atualizar Fornecedor</button>
+            <a href="fornecedores.php" class="bg-white/10 text-slate-300 font-bold py-2.5 px-6 rounded-xl hover:bg-white/25 transition-all text-xs uppercase tracking-wider">Cancelar</a>
         </div>
     </form>
 </div>
+<?php endif; ?>
 
-<div class="bg-[#121c14] border border-white/10 rounded-2xl overflow-hidden">
-    <div class="p-6 border-b border-white/10"><h3 class="font-display font-bold text-lg">Fornecedores Cadastrados</h3></div>
+<div class="bg-[#121c14] border border-white/10 rounded-2xl overflow-hidden mb-8">
+    <div class="p-6 border-b border-white/10 flex items-center justify-between">
+        <h3 class="font-display font-bold text-lg">Lista de Fornecedores Cadastrados</h3>
+        <a href="cadastrar_fornecedor.php" class="bg-[#b7f052] text-[#0f1710] font-bold py-2 px-4 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider">+ Novo Fornecedor</a>
+    </div>
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
@@ -117,7 +112,7 @@ include("header.php");
                     <td class="p-4 text-slate-300"><?= htmlspecialchars($row['For_Endereco']) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="fornecedores.php?acao=editar&id=<?= $row['ID_Fornecedor'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="fornecedores.php?acao=excluir&id=<?= $row['ID_Fornecedor'] ?>" class="text-red-400 hover:underline text-xs">Excluir</a>
+                        <a href="fornecedores.php?acao=excluir&id=<?= $row['ID_Fornecedor'] ?>" class="text-red-400 hover:underline text-xs" data-confirm-msg="Tem certeza que deseja excluir este fornecedor?">Excluir</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>
