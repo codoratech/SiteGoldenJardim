@@ -1,382 +1,194 @@
-# \# 🌿 Golden Jardim
+# 🌿 Golden Jardim
+
+> **Uma empresa focada em paisagismo, jardinagem e cuidado que transformam ambientes.**
+
+Site institucional **+ painel administrativo** desenvolvidos como projeto de TCC do Colégio Politec para a **Golden Jardim**, empresa especializada em jardinagem, paisagismo e visagismo de ambientes, com foco em residências, condomínios e empresas, atendendo Americana-SP e região.
+
+O projeto foi pensado para apresentar os serviços da empresa de forma moderna, visual e intuitiva, além de dar ao cliente (Golden Jardim) um painel próprio para gerenciar clientes, produtos, serviços, fornecedores, ordens de serviço, agendamentos, estoque e contas a receber.
+
+---
+
+## 📌 Sobre o Projeto
+
+O **Golden Jardim** é composto por duas frentes:
+
+- **Site público** (`index.html`) — página institucional voltada ao visitante/cliente final;
+- **Painel administrativo** (`/admin`) — sistema interno em PHP + MySQL para a gestão do negócio.
+
+O projeto foi desenvolvido pelos estudantes do Colégio Politec **Gustavo Sales** e **Rafael Leonardo**, sob a marca de desenvolvimento **Codora Tech**, com o rebranding visual da Golden Jardim assinado por **Beatriz Cacesi** e **Laura Dourado**.
+
+### 🎯 Objetivos
+
+* Apresentar a Golden Jardim e sua proposta de trabalho;
+* Divulgar os principais serviços oferecidos;
+* Facilitar o contato com novos clientes (WhatsApp e Instagram);
+* Dar à empresa um painel administrativo para controlar sua operação (clientes, produtos, serviços, estoque, ordens de serviço, agendamentos e financeiro);
+* Criar uma presença digital moderna e profissional, em Português e Inglês.
+
+---
+
+## ✨ Funcionalidades
+
+### Site público
+* 🏡 Página institucional da empresa
+* 🌱 Apresentação dos serviços (jardinagem, poda, paisagismo, visagismo)
+* 📸 Galeria de projetos (antes/depois)
+* 📱 Botão flutuante e integração com WhatsApp
+* 📲 Link para Instagram
+* 🌎 Suporte para Português e Inglês (toggle de idioma)
+* ☀️🌙 Modo claro / modo escuro
+* 📱 Design responsivo
+* ✨ Animações e interações visuais
+* 📋 Seção de contato/orçamento
 
-# 
+### Painel administrativo (`/admin`)
+* 🔐 Login de acesso restrito
+* 👥 Cadastro e gestão de clientes
+* 🌿 Cadastro de serviços e produtos
+* 🚚 Cadastro de fornecedores e compras
+* 📦 Controle de estoque
+* 🧾 Ordens de serviço
+* 📅 Agendamentos
+* 💰 Financeiro / contas a receber
+* 🔑 Gestão de logins/usuários do sistema
 
-# > \*\*Paisagismo, jardinagem e cuidado que transformam ambientes.\*\*
+> ⚠️ O painel administrativo está em desenvolvimento como parte do TCC — algumas telas (como o cadastro completo de produtos e serviços e a integração das edições com o site público) ainda estão sendo implementadas.
 
-# 
+---
 
-# Site institucional desenvolvido para a \*\*Golden Jardim\*\*, empresa especializada em jardinagem, paisagismo e visagismo de ambientes, com foco em residências, condomínios e empresas.
+## 🛠️ Tecnologias Utilizadas
 
-# 
+**Site público**
+* **HTML5** — Estrutura das páginas
+* **CSS3** — Estilização, tema claro/escuro e responsividade
+* **JavaScript** — Interações, i18n (PT/EN) e funcionalidades
 
-# O projeto foi desenvolvido com o objetivo de apresentar os serviços da empresa de forma moderna, visual e intuitiva, além de facilitar o contato com potenciais clientes.
+**Painel administrativo**
+* **PHP** — Lógica do backend e páginas do painel
+* **MySQL / MariaDB** — Banco de dados (`banco.sql`)
+* Template administrativo baseado em **Bootstrap**
 
-# 
+**Ferramentas**
+* **Git** e **GitHub** — Controle de versão e hospedagem do código
+* **OpenCode** — Apoio no desenvolvimento
 
-# \---
+---
 
-# 
+## 📂 Estrutura do Projeto
 
-# \## 📌 Sobre o Projeto
+```text
+golden-jardim/
+│
+├── admin/                  # Painel administrativo (PHP)
+│   ├── index.php           # Login
+│   ├── dashboard.php       # Visão geral
+│   ├── clientes.php
+│   ├── produtos.php
+│   ├── servicos.php
+│   ├── fornecedores.php
+│   ├── ordens.php
+│   ├── agendamentos.php
+│   ├── estoque.php
+│   ├── financeiro.php
+│   ├── logins.php
+│   └── ...
+│
+├── assets/
+│   ├── css/                # Estilos do painel admin
+│   ├── js/                 # Scripts do painel admin
+│   ├── vendor/             # Bibliotecas de terceiros (CSS/JS/fonts)
+│   ├── img/                # Imagens e ícones do admin
+│   └── *.jpg                # Imagens do site público (hero, galeria, serviços)
+│
+├── conexao/
+│   └── banco.php           # Conexão com o banco de dados
+│
+├── banco.sql                # Script de criação do banco (tabelas do sistema)
+├── index.html                # Site público
+└── README.md
+```
 
-# 
+---
 
-# O \*\*Golden Jardim\*\* é um site institucional desenvolvido como projeto para apresentar a empresa, seus serviços e sua identidade visual no ambiente digital.
+## 🚀 Executando o Projeto
 
-# 
+O site público (`index.html`) pode ser aberto diretamente no navegador. Já o **painel administrativo** depende de PHP e MySQL, então é necessário um ambiente como XAMPP, WAMP ou similar.
 
-# A proposta combina uma experiência visual moderna com uma navegação simples, permitindo que o visitante conheça a Golden Jardim, explore seus serviços e entre em contato para solicitar informações ou um orçamento.
+### 1. Clone o repositório
 
-# 
+```bash
+git clone https://github.com/codoratech/golden-jardim-digital-bloom.git
+```
 
-# \### 🎯 Objetivos
+### 2. Acesse a pasta
 
-# 
+```bash
+cd golden-jardim-digital-bloom
+```
 
-# \* Apresentar a Golden Jardim e sua proposta de trabalho;
+### 3. Configure o banco de dados
 
-# \* Divulgar os principais serviços oferecidos;
+* Crie um banco no MySQL/MariaDB e importe o arquivo `banco.sql`;
+* Ajuste as credenciais de conexão em `conexao/banco.php` para o seu ambiente local.
 
-# \* Destacar projetos e trabalhos realizados;
+### 4. Rode o projeto
 
-# \* Facilitar o contato com novos clientes;
+* Coloque a pasta do projeto no diretório servido pelo seu servidor local (ex: `htdocs` no XAMPP);
+* Acesse o site público em `http://localhost/golden-jardim-digital-bloom/index.html`;
+* Acesse o painel administrativo em `http://localhost/golden-jardim-digital-bloom/admin/`.
 
-# \* Criar uma presença digital moderna e profissional;
+> Para o site público isoladamente, também é possível usar a extensão **Live Server** do VS Code.
 
-# \* Proporcionar uma experiência agradável em diferentes dispositivos.
+---
 
-# 
+## 👥 Desenvolvimento
 
-# \---
+Projeto desenvolvido pela **Codora Tech** como parte do TCC do Colégio Politec, para a presença digital e gestão da Golden Jardim.
 
-# 
+* **Desenvolvimento:** Gustavo Sales e Rafael Leonardo
+* **Rebranding / Identidade Visual:** Beatriz Cacesi e Laura Dourado
 
-# \## ✨ Funcionalidades
+> **Codora Tech** — Soluções digitais pensadas para pessoas.
 
-# 
+---
 
-# \* 🏡 Página institucional da empresa
+## 🌿 Golden Jardim
 
-# \* 🌱 Apresentação dos serviços
+A Golden Jardim atua com serviços de:
 
-# \* 📸 Galeria de projetos
+* 🌱 Jardinagem
+* 🌳 Poda e cuidados com árvores
+* 🏡 Paisagismo
+* 🌿 Visagismo de ambientes
+* 🪴 Venda de plantas
+* 📋 Projetos e manutenção de jardins
 
-# \* 📱 Integração com WhatsApp
+---
 
-# \* 📲 Link para Instagram
+## 📄 Status do Projeto
 
-# \* 🌎 Suporte para Português e Inglês
+🟡 **Em desenvolvimento** — site público concluído; painel administrativo em construção (integração com o site público e cadastros ainda sendo finalizados).
 
-# \* ☀️ Modo claro
+---
 
-# \* 🌙 Modo escuro
+## 📸 Preview
 
-# \* 📱 Design responsivo
+> Adicione aqui imagens ou GIFs do site para apresentar o projeto no GitHub.
 
-# \* ✨ Animações e interações visuais
+---
 
-# \* 📋 Seção para solicitação de orçamento
+## 📞 Contato
 
-# 
+Para conhecer o trabalho da Golden Jardim ou solicitar um orçamento, entre em contato através dos canais disponibilizados no site (WhatsApp e Instagram).
 
-# \---
+---
 
-# 
+## 📜 Licença
 
-# \## 🛠️ Tecnologias Utilizadas
+Este projeto foi desenvolvido especificamente para a **Golden Jardim** como trabalho de conclusão de curso. O código e os elementos visuais deste projeto não devem ser reutilizados ou redistribuídos sem autorização dos responsáveis.
 
-# 
+---
 
-# O projeto foi desenvolvido utilizando tecnologias web modernas:
-
-# 
-
-# \* \*\*HTML5\*\* — Estrutura das páginas
-
-# \* \*\*CSS3\*\* — Estilização e responsividade
-
-# \* \*\*JavaScript\*\* — Interações e funcionalidades
-
-# \* \*\*Git\*\* — Controle de versão
-
-# \* \*\*GitHub\*\* — Hospedagem e gerenciamento do código
-
-# 
-
-# \---
-
-# 
-
-# \## 🎨 Identidade Visual
-
-# 
-
-# O projeto foi desenvolvido buscando transmitir os principais conceitos associados à Golden Jardim:
-
-# 
-
-# 🌿 Natureza
-
-# 🏡 Elegância
-
-# ✨ Cuidado
-
-# 🌱 Qualidade
-
-# 💚 Bem-estar
-
-# 
-
-# A interface utiliza elementos visuais relacionados à natureza e ao paisagismo, combinados com uma estética moderna e limpa.
-
-# 
-
-# \---
-
-# 
-
-# \## 📱 Responsividade
-
-# 
-
-# O site foi desenvolvido para proporcionar uma boa experiência em diferentes tamanhos de tela:
-
-# 
-
-# \* 💻 Desktop
-
-# \* 💻 Notebook
-
-# \* 📱 Smartphones
-
-# \* 📱 Tablets
-
-# 
-
-# \---
-
-# 
-
-# \## 📂 Estrutura do Projeto
-
-# 
-
-# ```text
-
-# golden-jardim/
-
-# │
-
-# ├── assets/
-
-# │   ├── css/
-
-# │   ├── js/
-
-# │   ├── images/
-
-# │   └── ...
-
-# │
-
-# ├── index.html
-
-# ├── README.md
-
-# └── ...
-
-# ```
-
-# 
-
-# \*A estrutura pode variar conforme a versão atual do projeto.\*
-
-# 
-
-# \---
-
-# 
-
-# \## 🚀 Executando o Projeto
-
-# 
-
-# \### 1. Clone o repositório
-
-# 
-
-# ```bash
-
-# git clone https://github.com/codoratech/golden-jardim-digital-bloom.git
-
-# ```
-
-# 
-
-# \### 2. Acesse a pasta
-
-# 
-
-# ```bash
-
-# cd golden-jardim-digital-bloom
-
-# ```
-
-# 
-
-# \### 3. Execute o projeto
-
-# 
-
-# Por ser um projeto desenvolvido com HTML, CSS e JavaScript, basta abrir o arquivo:
-
-# 
-
-# ```text
-
-# index.html
-
-# ```
-
-# 
-
-# Também é possível utilizar uma extensão como \*\*Live Server\*\* no Visual Studio Code para executar o projeto localmente.
-
-# 
-
-# \---
-
-# 
-
-# \## 👥 Desenvolvimento
-
-# 
-
-# O projeto foi desenvolvido pela \*\*Codora Tech\*\* como parte do desenvolvimento da presença digital da Golden Jardim.
-
-# 
-
-# \### Codora Tech
-
-# 
-
-# > \*\*Soluções digitais pensadas para pessoas.\*\*
-
-# 
-
-# A Codora Tech atua no desenvolvimento de sistemas, sites e soluções digitais para pequenas empresas.
-
-# 
-
-# \---
-
-# 
-
-# \## 🌿 Golden Jardim
-
-# 
-
-# A Golden Jardim atua com serviços de:
-
-# 
-
-# \* 🌱 Jardinagem
-
-# \* 🌳 Poda e cuidados com árvores
-
-# \* 🏡 Paisagismo
-
-# \* 🌿 Visagismo de ambientes
-
-# \* 🪴 Venda de plantas
-
-# \* 📋 Projetos e manutenção de jardins
-
-# 
-
-# \---
-
-# 
-
-# \## 📄 Status do Projeto
-
-# 
-
-# 🟢 \*\*Em desenvolvimento\*\*
-
-# 
-
-# O projeto continua recebendo melhorias de design, funcionalidades, conteúdo e experiência do usuário.
-
-# 
-
-# \---
-
-# 
-
-# \## 📸 Preview
-
-# 
-
-# > Adicione aqui imagens ou GIFs do site para apresentar o projeto no GitHub.
-
-# 
-
-# ```text
-
-# 📷 Preview do projeto
-
-# ```
-
-# 
-
-# \---
-
-# 
-
-# \## 📞 Contato
-
-# 
-
-# Para conhecer o trabalho da Golden Jardim ou solicitar um orçamento, entre em contato através dos canais disponibilizados no site.
-
-# 
-
-# 🌐 \*\*Site:\*\* Golden Jardim
-
-# 📱 \*\*WhatsApp:\*\* disponível através do site
-
-# 📸 \*\*Instagram:\*\* disponível através do site
-
-# 
-
-# \---
-
-# 
-
-# \## 📜 Licença
-
-# 
-
-# Este projeto foi desenvolvido especificamente para a \*\*Golden Jardim\*\*.
-
-# 
-
-# O código e os elementos visuais deste projeto não devem ser reutilizados ou redistribuídos sem autorização dos responsáveis.
-
-# 
-
-# \---
-
-# 
-
-# <p align="center">
-
-# &#x20; Desenvolvido com 🌿 pela <strong>Codora Tech</strong>
-
-# </p>
-
-
-
+<p align="center">
+  Desenvolvido com 🌿 pela <strong>Codora Tech</strong>
+</p>

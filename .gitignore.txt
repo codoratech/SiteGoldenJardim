@@ -1,0 +1,15 @@
+# Credenciais / configuração local
+conexao/config.php
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Editores/IDE
+.vscode/
+.idea/
+
+# Logs e backups
+*.log
+*.bak
+*.sql.bak
