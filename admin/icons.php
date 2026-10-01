@@ -1,6 +1,14 @@
 <?php
 function admin_icon($name, $class = '') {
     $paths = [
+        'globe' => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>',
+        'image' => '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="m21 15-5-5L5 21"/>',
+        'up' => '<path d="M12 19V5m-6 6 6-6 6 6"/>',
+        'down' => '<path d="M12 5v14m-6-6 6 6 6-6"/>',
+        'edit' => '<path d="m15 4 5 5-11 11-6 1 1-6L15 4Zm-2 2 5 5"/>',
+        'trash' => '<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>',
+        'lock' => '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4m-4 4v3"/>',
+        'check' => '<path d="m5 12 4 4L19 6"/>',
         'leaf' => '<path d="M20 4c0 9-3 15-10 15a6 6 0 0 1-6-6C4 6 11 4 20 4Z"/><path d="m4 21 11-11"/>',
         'grid' => '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
         'users' => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3a4 4 0 0 1 0 8"/><circle cx="9" cy="7" r="4"/>',

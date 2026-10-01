@@ -1,0 +1,5 @@
+.gallery-item-no-image { aspect-ratio: 4/5; background: linear-gradient(135deg, #263c27, #0c1c10); }
+.project-description { margin-top: 8px; max-width: 38ch; font-size: 14px; line-height: 1.5; color: #eee; }
+.project-location { display: block; margin-top: 6px; font-size: 12px; color: #ddd; }
+[data-site-eyebrow][hidden] { display: none !important; }
+.services-head > .eyebrow-sm { display: block; margin-bottom: 16px; }

@@ -1,0 +1,8 @@
+Options -Indexes
+DirectoryIndex index.php index.html
+RewriteEngine On
+RewriteRule ^(?:migrations|tests|backups|\.deploy|\.local-tests)(?:/|$) - [F,L]
+RewriteRule ^index\.html$ index.php [L]
+<FilesMatch "(?i)(^\.|\.(sql|log|md|ini|zip|bak|ps1|toml|yml)$|^config\.(local|example)\.php$|^(?:dashboard-preview|teste_upload)\.php$)">
+ Require all denied
+</FilesMatch>

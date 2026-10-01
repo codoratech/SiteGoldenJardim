@@ -1,0 +1,5 @@
+Options -Indexes
+DirectoryIndex index.html index.php
+<FilesMatch "(^\.|\.(sql|log|md|ini|zip|bak)$|^config\.(local|example)\.php$)">
+ Require all denied
+</FilesMatch>

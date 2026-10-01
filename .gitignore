@@ -1,3 +1,7 @@
 /conexao/config.local.php
 /.local-tests/
 /.deploy/
+/backups/
+**/backups/
+/uploads/site/*
+!/uploads/site/.htaccess

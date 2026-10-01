@@ -19,9 +19,11 @@ function csrf_field() {
     return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') . '">';
 }
 function reject_request($message, $status = 400) {
+    if ($status === 400 && !empty($GLOBALS['admin_collect_errors'])) throw new AdminFormValidation($message);
     http_response_code($status);
     exit(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
 }
+class AdminFormValidation extends RuntimeException {}
 function require_login() {
     if (empty($_SESSION['log_codigo'])) {
         header('Location: index.php');
@@ -36,6 +38,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     foreach ($_POST as $value) {
         if (!is_string($value)) reject_request('Dados de formulário inválidos.');
     }
+    $form_routes = ['clientes','produtos','servicos','fornecedores','ordens','agendamentos','estoque','financeiro','logins','cadastrar_cliente','cadastrar_produto','cadastrar_servico','cadastrar_fornecedor','cadastrar_ordem','cadastrar_agendamento','cadastrar_estoque','cadastrar_conta','cadastrar_login'];
+    $GLOBALS['admin_collect_errors'] = in_array(pathinfo($_SERVER['PHP_SELF'] ?? '',PATHINFO_FILENAME),$form_routes,true);
+    try {
     if (!empty($_POST['cli_Email']) && !filter_var($_POST['cli_Email'], FILTER_VALIDATE_EMAIL)) {
         reject_request('Informe um endereço de e-mail válido.');
     }
@@ -64,5 +69,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     ];
     foreach ($choices as $key => $values) {
         if (isset($_POST[$key]) && !in_array($_POST[$key], $values, true)) reject_request('Selecione uma opção válida.');
+    }
+    } catch (AdminFormValidation $error) {
+        $GLOBALS['admin_form_errors'][] = $error->getMessage();
+        http_response_code(400);
     }
 }
