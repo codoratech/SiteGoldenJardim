@@ -1,4 +1,12 @@
 <?php
+require_once __DIR__ . "/bootstrap.php";
+require_login();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['acao'] ?? '') !== 'excluir') {
+    foreach (['For_Nome'] as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') reject_request('Preencha todos os campos obrigatórios.');
+    }
+}
+
 include("../conexao/banco.php");
 
 $msg = "";
@@ -12,11 +20,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($nome)) {
         $msg_erro = "O nome do fornecedor é obrigatório.";
     } else {
-        if (mysqli_query($con, "INSERT INTO TB_Fornecedores (For_Nome, For_Telefone, For_Endereco) VALUES ('$nome', '$telefone', '$endereco')")) {
+        if (mysqli_query($con, "INSERT INTO tb_fornecedores (For_Nome, For_Telefone, For_Endereco) VALUES ('$nome', '$telefone', '$endereco')")) {
             header("Location: cadastrar_fornecedor.php?ok=insert");
             exit();
         } else {
-            $msg_erro = "Erro ao cadastrar: " . mysqli_error($con);
+            $msg_erro = "Erro ao cadastrar: " . database_error($con);
         }
     }
 }
@@ -44,6 +52,7 @@ include("header.php");
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-3xl">
     <h3 class="font-display font-bold text-lg mb-4">Informações do Fornecedor</h3>
     <form action="cadastrar_fornecedor.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <?= csrf_field() ?>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Fornecedor</label>
             <input type="text" name="For_Nome" required class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: Viveiro Verde Vida">

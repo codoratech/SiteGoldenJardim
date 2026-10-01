@@ -173,7 +173,7 @@ A Golden Jardim atua com serviços de:
 
 ## 📸 Preview
 
-> Adicione aqui imagens ou GIFs do site para apresentar o projeto no GitHub.
+![Painel Administrativo]()
 
 ---
 

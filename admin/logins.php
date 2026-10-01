@@ -1,24 +1,37 @@
 <?php
+require_once __DIR__ . "/bootstrap.php";
+require_login();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['acao'] ?? '') !== 'excluir') {
+    foreach (['log_nome', 'log_login'] as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') reject_request('Preencha todos os campos obrigatórios.');
+    }
+}
+
 include("../conexao/banco.php");
 
 $msg = "";
 $msg_erro = "";
 
-// Ensure default 'adm' login exists with password '123' if not present
-$check_adm = mysqli_query($con, "SELECT * FROM tb_login WHERE log_login = 'adm'");
-if (mysqli_num_rows($check_adm) == 0) {
-    mysqli_query($con, "INSERT INTO tb_login (log_nome, log_login, log_senha) VALUES ('Administrador', 'adm', MD5('123'))");
+function is_protected_login($login) {
+    return strcasecmp(trim((string) $login), 'Adm') === 0;
 }
 
-if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
-    $id = intval($_GET['id']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'excluir' && isset($_POST['id'])) {
+    $id = intval($_POST['id']);
+    if ($id < 1) reject_request('Registro inválido.');
+    $target_res = mysqli_query($con, "SELECT log_login FROM tb_login WHERE log_codigo = $id");
+    $target = mysqli_fetch_assoc($target_res);
     $count_res = mysqli_query($con, "SELECT COUNT(*) as total FROM tb_login");
     $count_row = mysqli_fetch_assoc($count_res);
-    if ($count_row['total'] <= 1) {
+    if ($target && is_protected_login($target['log_login'])) {
+        $msg_erro = 'O login Adm é protegido e não pode ser excluído.';
+    } elseif ($id === (int) $_SESSION['log_codigo']) {
+        $msg_erro = 'Não é possível excluir seu próprio acesso enquanto estiver conectado.';
+    } elseif ($count_row['total'] <= 1) {
         $msg_erro = "Não é possível excluir o único usuário do sistema.";
     } else {
-        if (!mysqli_query($con, "DELETE FROM tb_login WHERE log_codigo = $id")) {
-            $msg_erro = "Erro ao excluir login: " . mysqli_error($con);
+        if (!mysqli_query($con, "DELETE FROM tb_login WHERE log_codigo = $id AND LOWER(TRIM(log_login)) <> 'adm'")) {
+            $msg_erro = "Erro ao excluir login: " . database_error($con);
         } else {
             $msg = "Login excluído com sucesso!";
         }
@@ -32,13 +45,26 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id_login'])) {
     $id = intval($_POST['id_login']);
+    $target_res = mysqli_query($con, "SELECT log_login FROM tb_login WHERE log_codigo = $id");
+    $target = mysqli_fetch_assoc($target_res);
+    if ($target && is_protected_login($target['log_login']) && $_POST['log_login'] !== $target['log_login']) {
+        reject_request('O nome de login Adm é protegido e não pode ser alterado.');
+    }
     $nome = mysqli_real_escape_string($con, $_POST['log_nome']);
     $login = mysqli_real_escape_string($con, $_POST['log_login']);
     $senha = $_POST['log_senha'];
+    if (trim($_POST['log_nome']) === '' || trim($_POST['log_login']) === '') reject_request('Nome e login são obrigatórios.');
+    if (strlen($_POST['log_nome']) > 120 || strlen($_POST['log_login']) > 50) reject_request('Nome ou login excede o tamanho permitido.');
+    $duplicate = mysqli_prepare($con, 'SELECT log_codigo FROM tb_login WHERE log_login = ? AND log_codigo <> ?');
+    $exclude_id = $id;
+    mysqli_stmt_bind_param($duplicate, 'si', $_POST['log_login'], $exclude_id);
+    mysqli_stmt_execute($duplicate);
+    if (mysqli_num_rows(mysqli_stmt_get_result($duplicate)) > 0) reject_request('Este login já está em uso.');
     
     if (!empty($senha)) {
-        $senha_md5 = md5($senha);
-        $sql = "UPDATE tb_login SET log_nome='$nome', log_login='$login', log_senha='$senha_md5' WHERE log_codigo=$id";
+        if (strlen($senha) < 8) reject_request('A senha deve ter pelo menos 8 caracteres.');
+        $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+        $sql = "UPDATE tb_login SET log_nome='$nome', log_login='$login', log_senha='$senha_hash' WHERE log_codigo=$id";
     } else {
         $sql = "UPDATE tb_login SET log_nome='$nome', log_login='$login' WHERE log_codigo=$id";
     }
@@ -46,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id_login'])) {
         header("Location: logins.php?ok=update");
         exit();
     } else {
-        $msg_erro = "Erro ao atualizar login: " . mysqli_error($con);
+        $msg_erro = "Erro ao atualizar login: " . database_error($con);
     }
 }
 
@@ -84,6 +110,7 @@ include("header.php");
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-2xl">
     <h3 class="font-display font-bold text-lg mb-4">Editar Login (#<?= $edit_login['log_codigo'] ?>)</h3>
     <form action="logins.php" method="POST" class="space-y-4">
+        <?= csrf_field() ?>
         <input type="hidden" name="id_login" value="<?= $edit_login['log_codigo'] ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Usuário</label>
@@ -91,11 +118,11 @@ include("header.php");
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Usuário / Login</label>
-            <input type="text" name="log_login" required value="<?= htmlspecialchars($edit_login['log_login']) ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
+            <input type="text" name="log_login" required <?= is_protected_login($edit_login['log_login']) ? 'readonly' : '' ?> value="<?= htmlspecialchars($edit_login['log_login']) ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nova Senha (Deixe em branco para manter a atual)</label>
-            <input type="password" name="log_senha" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="••••••••">
+            <input type="password" name="log_senha" minlength="8" autocomplete="new-password" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="••••••••">
         </div>
         <div class="flex items-center gap-3 pt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider">Atualizar Login</button>
@@ -130,7 +157,16 @@ include("header.php");
                     <td class="p-4 text-slate-300"><?= date('d/m/Y H:i', strtotime($row['log_data_cadastro'])) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="logins.php?acao=editar&id=<?= $row['log_codigo'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="logins.php?acao=excluir&id=<?= $row['log_codigo'] ?>" class="text-red-400 hover:underline text-xs" data-confirm-msg="Tem certeza que deseja excluir este login?">Excluir</a>
+                        <?php if (is_protected_login($row['log_login'])): ?>
+                        <span class="text-slate-400 text-xs">Protegido</span>
+                        <?php else: ?>
+                        <form action="logins.php" method="POST" class="inline" data-delete-form data-confirm-msg="Tem certeza que deseja excluir este login?">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="acao" value="excluir">
+                            <input type="hidden" name="id" value="<?= $row['log_codigo'] ?>">
+                            <button type="submit" class="text-red-400 hover:underline text-xs">Excluir</button>
+                        </form>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endwhile; ?>

@@ -1,13 +1,22 @@
 <?php
+require_once __DIR__ . "/bootstrap.php";
+require_login();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['acao'] ?? '') !== 'excluir') {
+    foreach (['TB_Clientes_ID_Cliente', 'Ord_ValorTotal'] as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') reject_request('Preencha todos os campos obrigatórios.');
+    }
+}
+
 include("../conexao/banco.php");
 
 $msg = "";
 $msg_erro = "";
 
-if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-    if (!mysqli_query($con, "DELETE FROM TB_OrdensServico WHERE ID_Ordem = $id")) {
-        $msg_erro = "Não foi possível excluir: esta Ordem de Serviço possui registros vinculados. Detalhe: " . mysqli_error($con);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'excluir' && isset($_POST['id'])) {
+    $id = intval($_POST['id']);
+    if ($id < 1) reject_request('Registro inválido.');
+    if (!mysqli_query($con, "DELETE FROM tb_ordensservico WHERE ID_Ordem = $id")) {
+        $msg_erro = "Não foi possível excluir: esta Ordem de Serviço possui registros vinculados. Detalhe: " . database_error($con);
     } else {
         $msg = "Ordem de Serviço excluída com sucesso!";
     }
@@ -25,11 +34,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id_ordem'])) {
     $valor = max(0, floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Ord_ValorTotal']))));
     $obs = mysqli_real_escape_string($con, $_POST['Ord_Observacoes']);
     
-    if (mysqli_query($con, "UPDATE TB_OrdensServico SET TB_Clientes_ID_Cliente=$cli_id, Or_Status='$status', Ord_ValorTotal=$valor, Ord_Observacoes='$obs' WHERE ID_Ordem=$id")) {
+    if (mysqli_query($con, "UPDATE tb_ordensservico SET TB_Clientes_ID_Cliente=$cli_id, Or_Status='$status', Ord_ValorTotal=$valor, Ord_Observacoes='$obs' WHERE ID_Ordem=$id")) {
         header("Location: ordens.php?ok=update");
         exit();
     } else {
-        $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
+        $msg_erro = "Erro ao atualizar: " . database_error($con);
     }
 }
 
@@ -41,12 +50,12 @@ if (isset($_GET['ok'])) {
 $edit_ordem = null;
 if (isset($_GET['acao']) && $_GET['acao'] == 'editar' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    $res = mysqli_query($con, "SELECT * FROM TB_OrdensServico WHERE ID_Ordem = $id");
+    $res = mysqli_query($con, "SELECT * FROM tb_ordensservico WHERE ID_Ordem = $id");
     $edit_ordem = mysqli_fetch_assoc($res);
 }
 
-$clientes = mysqli_query($con, "SELECT * FROM TB_Clientes ORDER BY cli_Nome ASC");
-$ordens = mysqli_query($con, "SELECT o.*, c.cli_Nome FROM TB_OrdensServico o JOIN TB_Clientes c ON o.TB_Clientes_ID_Cliente = c.ID_Cliente ORDER BY o.ID_Ordem DESC");
+$clientes = mysqli_query($con, "SELECT * FROM tb_clientes ORDER BY cli_Nome ASC");
+$ordens = mysqli_query($con, "SELECT o.*, c.cli_Nome FROM tb_ordensservico o JOIN tb_clientes c ON o.TB_Clientes_ID_Cliente = c.ID_Cliente ORDER BY o.ID_Ordem DESC");
 
 include("header.php");
 ?>
@@ -68,13 +77,14 @@ include("header.php");
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-3xl">
     <h3 class="font-display font-bold text-lg mb-4">Editar Ordem de Serviço (#<?= $edit_ordem['ID_Ordem'] ?>)</h3>
     <form action="ordens.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <?= csrf_field() ?>
         <input type="hidden" name="id_ordem" value="<?= $edit_ordem['ID_Ordem'] ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Cliente</label>
             <select name="TB_Clientes_ID_Cliente" required class="w-full bg-[#162418] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
                 <option value="">Selecione o cliente...</option>
                 <?php 
-                $cli_res = mysqli_query($con, "SELECT * FROM TB_Clientes ORDER BY cli_Nome ASC");
+                $cli_res = mysqli_query($con, "SELECT * FROM tb_clientes ORDER BY cli_Nome ASC");
                 while($c = mysqli_fetch_assoc($cli_res)): 
                 ?>
                     <option value="<?= $c['ID_Cliente'] ?>" <?= $edit_ordem['TB_Clientes_ID_Cliente'] == $c['ID_Cliente'] ? 'selected' : '' ?>><?= htmlspecialchars($c['cli_Nome']) ?></option>
@@ -134,7 +144,12 @@ include("header.php");
                     <td class="p-4 text-slate-300"><?= htmlspecialchars($row['Ord_Observacoes']) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="ordens.php?acao=editar&id=<?= $row['ID_Ordem'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="ordens.php?acao=excluir&id=<?= $row['ID_Ordem'] ?>" class="text-red-400 hover:underline text-xs" data-confirm-msg="Tem certeza que deseja excluir esta ordem de serviço?">Excluir</a>
+                        <form action="ordens.php" method="POST" class="inline" data-delete-form data-confirm-msg="Tem certeza que deseja excluir esta ordem de serviço?">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="acao" value="excluir">
+                            <input type="hidden" name="id" value="<?= $row['ID_Ordem'] ?>">
+                            <button type="submit" class="text-red-400 hover:underline text-xs">Excluir</button>
+                        </form>
                     </td>
                 </tr>
                 <?php endwhile; ?>

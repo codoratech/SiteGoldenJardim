@@ -1,22 +1,32 @@
 <?php
+require_once __DIR__ . "/bootstrap.php";
+require_login();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['acao'] ?? '') !== 'excluir') {
+    foreach (['Pro_Nome', 'Pro_Preco'] as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') reject_request('Preencha todos os campos obrigatórios.');
+    }
+}
+
 include("../conexao/banco.php");
+require_once __DIR__ . "/inventory_helpers.php";
 
 $msg = "";
 $msg_erro = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nome = mysqli_real_escape_string($con, $_POST['Pro_Nome']);
-    $desc = mysqli_real_escape_string($con, $_POST['Pro_Descricao']);
+    $nome = trim($_POST['Pro_Nome']);
+    $desc = $_POST['Pro_Descricao'] ?? '';
+    $minimum = inventory_minimum();
     $preco = max(0, floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Pro_Preco']))));
     
     if (empty($nome)) {
         $msg_erro = "O nome do produto é obrigatório.";
     } else {
-        if (mysqli_query($con, "INSERT INTO TB_Produtos (Pro_Nome, Pro_Descricao, Pro_Preco) VALUES ('$nome', '$desc', $preco)")) {
+        if (inventory_execute($con, 'INSERT INTO tb_produtos (Pro_Nome, Pro_Descricao, Pro_Preco, Pro_EstoqueMinimo) VALUES (?,?,?,?)', 'ssdi', [$nome, $desc, $preco, $minimum])) {
             header("Location: cadastrar_produto.php?ok=insert");
             exit();
         } else {
-            $msg_erro = "Erro ao cadastrar: " . mysqli_error($con);
+            $msg_erro = "Erro ao cadastrar: " . database_error($con);
         }
     }
 }
@@ -44,6 +54,7 @@ include("header.php");
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-3xl">
     <h3 class="font-display font-bold text-lg mb-4">Informações do Produto</h3>
     <form action="cadastrar_produto.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <?= csrf_field() ?>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Produto</label>
             <input type="text" name="Pro_Nome" required class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: Muda de Ipê Amarelo">
@@ -55,6 +66,11 @@ include("header.php");
         <div class="md:col-span-2">
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Descrição</label>
             <input type="text" name="Pro_Descricao" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Detalhes do produto">
+        </div>
+        <div class="md:col-span-2">
+            <label for="productMinimum" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Estoque mínimo (opcional)</label>
+            <input id="productMinimum" type="number" min="0" max="2147483647" step="1" name="Pro_EstoqueMinimo" value="" class="w-full border rounded-xl px-4 py-2.5 text-sm" placeholder="Deixe vazio para não monitorar">
+            <p class="text-xs text-slate-400 mt-2">O alerta aparece quando o saldo de entradas e saídas chega ao mínimo.</p>
         </div>
         <div class="md:col-span-2 flex items-center gap-3 pt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider">Salvar Produto</button>

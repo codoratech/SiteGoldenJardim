@@ -281,6 +281,17 @@
 
   .reveal{opacity:0; transform:translateY(28px); transition:opacity .9s var(--ease), transform .9s var(--ease);}
   .reveal.in{opacity:1; transform:translateY(0);}
+
+  #menu-toggle{display:none;background:transparent;border:1px solid var(--moss-ink);border-radius:8px;padding:8px;color:var(--foreground);cursor:pointer;}
+  :focus-visible{outline:3px solid var(--moss-ink);outline-offset:4px;}
+  @media(max-width:767px){
+    #menu-toggle{display:block;}
+    .nav-inner{flex-wrap:wrap;gap:12px;}
+    .nav-actions{flex-wrap:wrap;}
+    nav.links.is-open{display:flex;order:3;flex-basis:100%;flex-wrap:wrap;gap:20px;padding:16px 0;}
+    .brand .name{font-size:16px;}
+    .cta-btn{display:none;}
+  }
 </style>
 </head>
 <body>
@@ -291,15 +302,16 @@
       <span class="logo">🌿</span>
       <span class="name">Golden <span style="color:var(--moss-ink)">Jardim</span></span>
     </a>
-    <nav class="links">
+    <nav class="links" id="site-nav" aria-label="Navegação principal">
       <a href="#services" data-i18n="nav.services">Serviços</a>
       <a href="#gallery" data-i18n="nav.projects">Projetos</a>
       <a href="#about" data-i18n="nav.about">Sobre</a>
       <a href="#contact" data-i18n="nav.contact">Contato</a>
     </nav>
     <div class="nav-actions">
+      <button type="button" id="menu-toggle" aria-controls="site-nav" aria-expanded="false" aria-label="Abrir menu">☰</button>
       <!-- Language selector -->
-      <div class="hidden sm:flex items-center gap-1 p-1 rounded-full border border-c glass" role="group" aria-label="Selecionar idioma">
+      <div class="flex items-center gap-1 p-1 rounded-full border border-c glass" role="group" aria-label="Selecionar idioma">
         <button type="button" data-lang-btn="pt" class="lang-select-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium border border-transparent cursor-pointer bg-transparent text-foreground" aria-pressed="true">
           <img src="https://flagcdn.com/w20/br.png" srcset="https://flagcdn.com/w40/br.png 2x" width="20" alt="Bandeira do Brasil" class="rounded-sm">
         </button>
@@ -351,8 +363,8 @@
 <section id="services">
   <div class="section-inner">
     <div class="services-head reveal">
-      <h2 class="section-title" data-i18n="services.title">SISTEMAS
-CENTRAIS</h2>
+      <h2 class="section-title" data-i18n="services.title">NOSSOS
+SERVIÇOS</h2>
       <p data-i18n="services.subtitle">Especialidades conduzidas por Rodrigo &amp; Fernanda Câmara</p>
     </div>
     <div class="services-grid" id="servicesGrid"></div>
@@ -377,11 +389,11 @@ CENTRAIS</h2>
     <span class="eyebrow-sm" data-i18n="ba.eyebrow">Caso de estudo</span>
     <h2 class="section-title" data-i18n="ba.title">TRANSFORMAÇÃO</h2>
     <div class="ba-frame" id="baFrame">
-      <img src="assets/after.jpg" alt="Depois" />
-      <div class="ba-before-wrap" id="baBeforeWrap"><img src="assets/before.jpg" alt="Antes" /></div>
+      <img src="assets/after.jpg" alt="Jardim após o projeto de paisagismo" />
+      <div class="ba-before-wrap" id="baBeforeWrap"><img src="assets/before.jpg" alt="Área externa antes do projeto de paisagismo" /></div>
       <div class="ba-tag before" data-i18n="ba.before">Antes</div>
       <div class="ba-tag after" data-i18n="ba.after">Depois</div>
-      <div class="ba-handle" id="baHandle"><div class="dot">↔</div></div>
+      <div class="ba-handle" id="baHandle" role="slider" tabindex="0" aria-label="Comparação antes e depois" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><div class="dot">↔</div></div>
       <div class="ba-hint" data-i18n="ba.hint">Arraste para comparar</div>
     </div>
   </div>
@@ -474,7 +486,7 @@ Atendemos Americana e região</p>
 
 <script>
 /* ---------- CONTEÚDO / DADOS ---------- */
-const WA_NUMBER = "5519999999999"; // TODO: trocar pelo número real do Golden Jardim
+const WA_NUMBER = "5519989862859";
 
 const dict = {
   pt: {
@@ -482,9 +494,9 @@ const dict = {
     "hero.eyebrow":"Arquitetura • Natureza • Tecnologia","hero.titleA":"ENGENHARIA","hero.titleB":"DE ECOSSISTEMAS",
     "hero.body":"Paisagismo premium para residências, condomínios e empresas em Americana-SP. Unimos precisão técnica e arte biológica para criar obras vivas.",
     "hero.stat1":"Projetos","hero.stat2":"Anos de expertise","hero.scroll":"Role para explorar",
-    "services.title":"SISTEMAS\nCENTRAIS","services.subtitle":"Especialidades conduzidas por Rodrigo & Fernanda Câmara",
+    "services.title":"NOSSOS\nSERVIÇOS","services.subtitle":"Especialidades conduzidas por Rodrigo & Fernanda Câmara",
     "gallery.eyebrow":"Portfólio","gallery.title":"Projetos assinados","gallery.subtitle":"Uma seleção de transformações entregues em Americana e região.",
-    "ba.eyebrow":"Caso de estudo","ba.title":"TRANSFORMAÇÃO","ba.before":"Antes","ba.after":"Depois","ba.hint":"Arraste para comparar",
+    "ba.eyebrow":"Caso de estudo","ba.title":"TRANSFORMAÇÃO","ba.before":"Antes","ba.after":"Depois","ba.hint":"Arraste ou use as setas para comparar",
     "testimonials.eyebrow":"Confiança","testimonials.title":"O que dizem nossos clientes",
     "about.eyebrow":"Quem somos","about.title":"Tecnologia e jardinagem em equilíbrio.",
     "about.body":"A Golden Jardim nasceu para elevar o padrão do paisagismo na região de Americana-SP. Combinamos curadoria botânica, gestão técnica e identidade visual para entregar experiências verdes únicas.",
@@ -498,9 +510,9 @@ const dict = {
     "hero.eyebrow":"Architecture • Nature • Technology","hero.titleA":"ENGINEERING","hero.titleB":"ECOSYSTEMS",
     "hero.body":"Premium landscaping for residential, condominium and commercial spaces in Americana, SP. We blend technical precision with biological artistry to create living masterpieces.",
     "hero.stat1":"Projects","hero.stat2":"Years expertise","hero.scroll":"Scroll to explore",
-    "services.title":"CORE\nSYSTEMS","services.subtitle":"Specialty services led by Rodrigo & Fernanda Câmara",
+    "services.title":"OUR\nSERVICES","services.subtitle":"Specialty services led by Rodrigo & Fernanda Câmara",
     "gallery.eyebrow":"Portfolio","gallery.title":"Signature projects","gallery.subtitle":"Selected transformations delivered across Americana region.",
-    "ba.eyebrow":"Case study","ba.title":"TRANSFORMATION","ba.before":"Before","ba.after":"After","ba.hint":"Drag to compare",
+    "ba.eyebrow":"Case study","ba.title":"TRANSFORMATION","ba.before":"Before","ba.after":"After","ba.hint":"Drag or use arrow keys to compare",
     "testimonials.eyebrow":"Trust","testimonials.title":"What our clients say",
     "about.eyebrow":"About","about.title":"Technology and gardening in balance.",
     "about.body":"Golden Jardim was born to raise the bar for landscaping in the Americana-SP region. We combine botanical curation, technical management and visual identity to deliver unique green experiences.",
@@ -645,12 +657,25 @@ function setupWhatsApp(){
   const beforeWrap = document.getElementById("baBeforeWrap");
   const handle = document.getElementById("baHandle");
   let dragging = false;
+  let position = 50;
+  function setPosition(pos) {
+    position = Math.max(0, Math.min(100, pos));
+    beforeWrap.style.width = position + '%';
+    handle.style.left = position + '%';
+    handle.setAttribute('aria-valuenow', Math.round(position));
+  }
+  handle.addEventListener('keydown', e => {
+    const changes = {ArrowLeft:-5, ArrowDown:-5, ArrowRight:5, ArrowUp:5};
+    if (e.key in changes || e.key === 'Home' || e.key === 'End') {
+      e.preventDefault();
+      setPosition(e.key === 'Home' ? 0 : e.key === 'End' ? 100 : position + changes[e.key]);
+    }
+  });
   function update(clientX){
     const rect = frame.getBoundingClientRect();
     let pos = ((clientX - rect.left) / rect.width) * 100;
     pos = Math.max(0, Math.min(100, pos));
-    beforeWrap.style.width = pos + "%";
-    handle.style.left = pos + "%";
+    setPosition(pos);
   }
   frame.addEventListener("mousedown", (e)=>{ dragging = true; update(e.clientX); });
   frame.addEventListener("touchstart", (e)=>{ dragging = true; update(e.touches[0].clientX); });
@@ -677,7 +702,15 @@ const savedLang = localStorage.getItem("gj-lang");
 if(savedLang === "pt" || savedLang === "en") lang = savedLang;
 applyI18n();
 setupWhatsApp();
-document.querySelectorAll("#langMenu button, #contactForm").forEach(()=>{}); // no-op keep list
+const menuToggle = document.getElementById('menu-toggle');
+const siteNav = document.getElementById('site-nav');
+function closeMenu(){ siteNav.classList.remove('is-open'); menuToggle.setAttribute('aria-expanded','false'); }
+menuToggle.addEventListener('click', () => {
+  const open = siteNav.classList.toggle('is-open');
+  menuToggle.setAttribute('aria-expanded', String(open));
+});
+siteNav.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeMenu(); });
 const origApplyI18n = applyI18n;
 applyI18n = function(){ origApplyI18n(); setupWhatsApp(); };
 applyI18n();

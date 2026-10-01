@@ -1,338 +1,78 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-if (!isset($_SESSION['log_codigo'])) {
-    header("Location: index.php");
-    exit();
-}
+require_once __DIR__ . '/bootstrap.php';
+require_login();
+require_once __DIR__ . '/icons.php';
+require_once __DIR__ . '/dashboard_data.php';
 $current_page = basename($_SERVER['PHP_SELF']);
+$admin_stock = $admin_stock ?? dashboard_stock($con);
+$navGroups = [
+ ['clientes','Clientes','users','cadastrar_cliente.php','clientes.php','Cadastrar Cliente','Clientes Existentes'],
+ ['produtos','Produtos','box','cadastrar_produto.php','produtos.php','Cadastrar Produto','Produtos Existentes'],
+ ['servicos','Serviços','leaf','cadastrar_servico.php','servicos.php','Cadastrar Serviço','Serviços Existentes'],
+ ['fornecedores','Fornecedores','truck','cadastrar_fornecedor.php','fornecedores.php','Cadastrar Fornecedor','Fornecedores Existentes'],
+ ['ordens','Ordens de Serviço','clipboard','cadastrar_ordem.php','ordens.php','Cadastrar Ordem','Ordens Existentes'],
+ ['agendamentos','Agendamentos','calendar','cadastrar_agendamento.php','agendamentos.php','Cadastrar Agendamento','Agendamentos Existentes'],
+ ['estoque','Estoque','box','cadastrar_estoque.php','estoque.php','Cadastrar Movimentação','Estoque Existente'],
+ ['financeiro','Contas a Receber','wallet','cadastrar_conta.php','financeiro.php','Cadastrar Conta','Contas Existentes'],
+ ['logins','Logins','key','cadastrar_login.php','logins.php','Cadastrar Login','Logins Existentes']
+];
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR" class="dark" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo — Golden Jardim</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              forest: '#0f1710',
-              pine: '#162418',
-              moss: '#b7f052',
-              'moss-dark': '#9cd438',
-              mist: '#f3f7f4'
-            },
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              display: ['Sora', 'sans-serif']
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-        #sidebar {
-            transition: width 0.3s ease, transform 0.3s ease;
-        }
-        #sidebar.collapsed {
-            width: 5rem !important;
-        }
-        #sidebar.collapsed .sidebar-text,
-        #sidebar.collapsed .dropdown-arrow,
-        #sidebar.collapsed .sidebar-subtitle,
-        #sidebar.collapsed [id$="Submenu"] {
-            display: none !important;
-        }
-        #sidebar.collapsed nav a,
-        #sidebar.collapsed nav button,
-        #sidebar.collapsed .border-t a,
-        #sidebar.collapsed div.border-b > a {
-            justify-content: center !important;
-            padding-left: 0.75rem !important;
-            padding-right: 0.75rem !important;
-        }
-
-        /* Light Mode Styles (when html does NOT have class="dark") */
-        html:not(.dark) body {
-            background-color: #f3f7f4 !important;
-            color: #1e293b !important;
-        }
-        html:not(.dark) #sidebar {
-            background-color: #ffffff !important;
-            border-color: #e2e8f0 !important;
-            color: #1e293b !important;
-        }
-        html:not(.dark) #sidebar nav a,
-        html:not(.dark) #sidebar nav button {
-            color: #475569 !important;
-        }
-        html:not(.dark) #sidebar nav a:hover,
-        html:not(.dark) #sidebar nav button:hover {
-            background-color: rgba(0,0,0,0.05) !important;
-            color: #0f1710 !important;
-        }
-        html:not(.dark) #mainWrapper header {
-            background-color: rgba(255,255,255,0.95) !important;
-            border-color: #e2e8f0 !important;
-            color: #1e293b !important;
-        }
-        html:not(.dark) .bg-\[\#121c14\] {
-            background-color: #ffffff !important;
-            border-color: #e2e8f0 !important;
-            color: #1e293b !important;
-        }
-        html:not(.dark) .bg-black\/30,
-        html:not(.dark) input,
-        html:not(.dark) select,
-        html:not(.dark) textarea {
-            background-color: #f8fafc !important;
-            border-color: #cbd5e1 !important;
-            color: #0f1710 !important;
-        }
-        html:not(.dark) table tr {
-            border-color: #e2e8f0 !important;
-        }
-        html:not(.dark) thead tr {
-            background-color: #f1f5f9 !important;
-            color: #475569 !important;
-        }
-        html:not(.dark) .text-slate-400 {
-            color: #64748b !important;
-        }
-        html:not(.dark) .text-slate-300 {
-            color: #334155 !important;
-        }
-        html:not(.dark) .text-white {
-            color: #0f1710 !important;
-        }
-        html:not(.dark) .border-white\/10 {
-            border-color: #e2e8f0 !important;
-        }
-        html:not(.dark) .border-white\/5 {
-            border-color: #f1f5f9 !important;
-        }
-        html:not(.dark) .bg-white\/5 {
-            background-color: rgba(0,0,0,0.03) !important;
-        }
-        html:not(.dark) .bg-white\/10 {
-            background-color: rgba(0,0,0,0.06) !important;
-        }
-    </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title><?= $current_page === 'dashboard.php' ? 'Visão Geral' : 'Painel Administrativo' ?> — Golden Jardim</title>
+ <script src="../assets/js/admin-theme.js?v=2"></script>
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+ <script src="https://cdn.tailwindcss.com"></script>
+ <link rel="stylesheet" href="../assets/css/admin.css?v=3">
+ <?php if ($current_page === 'dashboard.php'): ?><link rel="stylesheet" href="../assets/css/dashboard.css?v=2"><?php endif; ?>
 </head>
-<body class="bg-[#0b120d] dark:bg-[#0b120d] text-slate-100 font-sans min-h-screen flex selection:bg-[#b7f052] selection:text-[#0f1710]">
-
-    <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#121c14] border-r border-white/10 flex flex-col lg:translate-x-0 -translate-x-full">
-        <div class="p-6 flex items-center justify-between border-b border-white/10">
-            <a href="dashboard.php" class="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer">
-                <span class="w-9 h-9 rounded-xl bg-[#b7f052] text-[#0f1710] flex items-center justify-center font-bold shrink-0">🌿</span>
-                <div class="sidebar-text">
-                    <span class="font-display font-bold text-sm tracking-tight uppercase block">Golden Jardim</span>
-                    <span class="text-[10px] text-slate-400 sidebar-subtitle">Admin v2.0</span>
-                </div>
-            </a>
-            <button id="closeSidebar" class="lg:hidden text-slate-400 hover:text-white">✕</button>
-        </div>
-
-        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-            <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $current_page == 'dashboard.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                <span>📊</span> <span class="sidebar-text">Dashboard</span>
-            </a>
-
-            <!-- Clientes -->
-            <?php $is_clientes_page = ($current_page == 'cadastrar_cliente.php' || $current_page == 'clientes.php'); ?>
-            <div class="space-y-1">
-                <button type="button" id="clientesDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_clientes_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                    <span class="flex items-center gap-3"><span>👥</span> <span class="sidebar-text">Clientes</span></span>
-                    <span id="clientesArrow" class="transform transition-transform text-xs dropdown-arrow <?= $is_clientes_page ? 'rotate-180' : '' ?>">▼</span>
-                </button>
-                <div id="clientesSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_clientes_page ? '' : 'hidden' ?>">
-                    <a href="cadastrar_cliente.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_cliente.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>➕</span> <span class="sidebar-text">Cadastrar Cliente</span>
-                    </a>
-                    <a href="clientes.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'clientes.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>📋</span> <span class="sidebar-text">Clientes Existentes</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Produtos -->
-            <?php $is_produtos_page = ($current_page == 'cadastrar_produto.php' || $current_page == 'produtos.php'); ?>
-            <div class="space-y-1">
-                <button type="button" id="produtosDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_produtos_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                    <span class="flex items-center gap-3"><span>📦</span> <span class="sidebar-text">Produtos</span></span>
-                    <span id="produtosArrow" class="transform transition-transform text-xs dropdown-arrow <?= $is_produtos_page ? 'rotate-180' : '' ?>">▼</span>
-                </button>
-                <div id="produtosSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_produtos_page ? '' : 'hidden' ?>">
-                    <a href="cadastrar_produto.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_produto.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>➕</span> <span class="sidebar-text">Cadastrar Produto</span>
-                    </a>
-                    <a href="produtos.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'produtos.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>📋</span> <span class="sidebar-text">Produtos Existentes</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Serviços -->
-            <?php $is_servicos_page = ($current_page == 'cadastrar_servico.php' || $current_page == 'servicos.php'); ?>
-            <div class="space-y-1">
-                <button type="button" id="servicosDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_servicos_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                    <span class="flex items-center gap-3"><span>🌱</span> <span class="sidebar-text">Serviços</span></span>
-                    <span id="servicosArrow" class="transform transition-transform text-xs dropdown-arrow <?= $is_servicos_page ? 'rotate-180' : '' ?>">▼</span>
-                </button>
-                <div id="servicosSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_servicos_page ? '' : 'hidden' ?>">
-                    <a href="cadastrar_servico.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_servico.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>➕</span> <span class="sidebar-text">Cadastrar Serviço</span>
-                    </a>
-                    <a href="servicos.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'servicos.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>📋</span> <span class="sidebar-text">Serviços Existentes</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Fornecedores -->
-            <?php $is_fornecedores_page = ($current_page == 'cadastrar_fornecedor.php' || $current_page == 'fornecedores.php'); ?>
-            <div class="space-y-1">
-                <button type="button" id="fornecedoresDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_fornecedores_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                    <span class="flex items-center gap-3"><span>🏭</span> <span class="sidebar-text">Fornecedores</span></span>
-                    <span id="fornecedoresArrow" class="transform transition-transform text-xs dropdown-arrow <?= $is_fornecedores_page ? 'rotate-180' : '' ?>">▼</span>
-                </button>
-                <div id="fornecedoresSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_fornecedores_page ? '' : 'hidden' ?>">
-                    <a href="cadastrar_fornecedor.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_fornecedor.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>➕</span> <span class="sidebar-text">Cadastrar Fornecedor</span>
-                    </a>
-                    <a href="fornecedores.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'fornecedores.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>📋</span> <span class="sidebar-text">Fornecedores Existentes</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Ordens de Serviço -->
-            <?php $is_ordens_page = ($current_page == 'cadastrar_ordem.php' || $current_page == 'ordens.php'); ?>
-            <div class="space-y-1">
-                <button type="button" id="ordensDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_ordens_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                    <span class="flex items-center gap-3"><span>📋</span> <span class="sidebar-text">Ordens de Serviço</span></span>
-                    <span id="ordensArrow" class="transform transition-transform text-xs dropdown-arrow <?= $is_ordens_page ? 'rotate-180' : '' ?>">▼</span>
-                </button>
-                <div id="ordensSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_ordens_page ? '' : 'hidden' ?>">
-                    <a href="cadastrar_ordem.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_ordem.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>➕</span> <span class="sidebar-text">Cadastrar Ordem</span>
-                    </a>
-                    <a href="ordens.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'ordens.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>📋</span> <span class="sidebar-text">Ordens Existentes</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Agendamentos -->
-            <?php $is_agendamentos_page = ($current_page == 'cadastrar_agendamento.php' || $current_page == 'agendamentos.php'); ?>
-            <div class="space-y-1">
-                <button type="button" id="agendamentosDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_agendamentos_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                    <span class="flex items-center gap-3"><span>📅</span> <span class="sidebar-text">Agendamentos</span></span>
-                    <span id="agendamentosArrow" class="transform transition-transform text-xs dropdown-arrow <?= $is_agendamentos_page ? 'rotate-180' : '' ?>">▼</span>
-                </button>
-                <div id="agendamentosSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_agendamentos_page ? '' : 'hidden' ?>">
-                    <a href="cadastrar_agendamento.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_agendamento.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>➕</span> <span class="sidebar-text">Cadastrar Agendamento</span>
-                    </a>
-                    <a href="agendamentos.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'agendamentos.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>📋</span> <span class="sidebar-text">Agendamentos Existentes</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Estoque -->
-            <?php $is_estoque_page = ($current_page == 'cadastrar_estoque.php' || $current_page == 'estoque.php'); ?>
-            <div class="space-y-1">
-                <button type="button" id="estoqueDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_estoque_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                    <span class="flex items-center gap-3"><span>📦</span> <span class="sidebar-text">Estoque</span></span>
-                    <span id="estoqueArrow" class="transform transition-transform text-xs dropdown-arrow <?= $is_estoque_page ? 'rotate-180' : '' ?>">▼</span>
-                </button>
-                <div id="estoqueSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_estoque_page ? '' : 'hidden' ?>">
-                    <a href="cadastrar_estoque.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_estoque.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>➕</span> <span class="sidebar-text">Cadastrar Movimentação</span>
-                    </a>
-                    <a href="estoque.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'estoque.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>📋</span> <span class="sidebar-text">Estoque Existente</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Contas a Receber / Financeiro -->
-            <?php $is_financeiro_page = ($current_page == 'cadastrar_conta.php' || $current_page == 'financeiro.php'); ?>
-            <div class="space-y-1">
-                <button type="button" id="financeiroDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_financeiro_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                    <span class="flex items-center gap-3"><span>💰</span> <span class="sidebar-text">Contas a Receber</span></span>
-                    <span id="financeiroArrow" class="transform transition-transform text-xs dropdown-arrow <?= $is_financeiro_page ? 'rotate-180' : '' ?>">▼</span>
-                </button>
-                <div id="financeiroSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_financeiro_page ? '' : 'hidden' ?>">
-                    <a href="cadastrar_conta.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_conta.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>➕</span> <span class="sidebar-text">Cadastrar Conta</span>
-                    </a>
-                    <a href="financeiro.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'financeiro.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>📋</span> <span class="sidebar-text">Contas Existentes</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Logins -->
-            <?php $is_logins_page = ($current_page == 'cadastrar_login.php' || $current_page == 'logins.php'); ?>
-            <div class="space-y-1">
-                <button type="button" id="loginsDropdownBtn" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors <?= $is_logins_page ? 'bg-white/10 text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                    <span class="flex items-center gap-3"><span>🔑</span> <span class="sidebar-text">Logins</span></span>
-                    <span id="loginsArrow" class="transform transition-transform text-xs dropdown-arrow <?= $is_logins_page ? 'rotate-180' : '' ?>">▼</span>
-                </button>
-                <div id="loginsSubmenu" class="pl-4 space-y-1 pt-1 <?= $is_logins_page ? '' : 'hidden' ?>">
-                    <a href="cadastrar_login.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'cadastrar_login.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>➕</span> <span class="sidebar-text">Cadastrar Login</span>
-                    </a>
-                    <a href="logins.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors <?= $current_page == 'logins.php' ? 'bg-[#b7f052] text-[#0f1710] font-bold shadow-lg shadow-[#b7f052]/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
-                        <span>📋</span> <span class="sidebar-text">Logins Existentes</span>
-                    </a>
-                </div>
-            </div>
-        </nav>
-
-        <div class="p-4 border-t border-white/10">
-            <a href="logout.php" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">
-                <span>🚪</span> <span class="sidebar-text">Sair do Sistema</span>
-            </a>
-        </div>
-    </aside>
-
-    <!-- Main Wrapper -->
-    <div id="mainWrapper" class="flex-1 flex flex-col lg:pl-64 transition-all duration-300">
-        <!-- Topbar -->
-        <header class="h-20 bg-[#121c14]/90 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 px-6 flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <button id="openSidebar" class="text-slate-300 hover:text-white text-xl">☰</button>
-                <h2 class="font-display font-bold text-lg tracking-tight">Painel de Controle</h2>
-            </div>
-            <div class="flex items-center gap-4">
-                <!-- Theme toggle -->
-                <button type="button" id="themeToggle" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors" aria-label="Alternar tema">
-                    <span id="sunIcon" class="text-sm">☀️</span>
-                    <span id="moonIcon" class="text-sm hidden">🌙</span>
-                </button>
-                <div class="hidden sm:flex items-center gap-3 pl-4 border-l border-white/10">
-                    <div class="w-9 h-9 rounded-full bg-[#b7f052]/20 border border-[#b7f052]/30 text-[#b7f052] flex items-center justify-center font-bold text-sm">
-                        <?= substr($_SESSION['log_nome'], 0, 1) ?>
-                    </div>
-                    <div>
-                        <span class="text-xs font-bold block text-slate-200"><?= htmlspecialchars($_SESSION['log_nome']) ?></span>
-                        <span class="text-[10px] text-slate-400">Administrador</span>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Content Area -->
-        <main class="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
+<body class="admin-body font-sans">
+<button class="sidebar-overlay" id="sidebarOverlay" aria-label="Fechar menu lateral" hidden></button>
+<aside id="sidebar" class="admin-sidebar" aria-label="Menu principal">
+ <div class="sidebar-brand">
+  <a href="dashboard.php"><span class="brand-symbol"><?= admin_icon('leaf') ?></span><span class="sidebar-text"><strong>Golden Jardim</strong><small>GESTÃO & OPERAÇÕES</small></span></a>
+  <button id="closeSidebar" class="icon-button mobile-only" aria-label="Fechar menu"><?= admin_icon('close') ?></button>
+ </div>
+ <nav class="sidebar-nav">
+  <p class="nav-label sidebar-text">PRINCIPAL</p>
+  <a href="dashboard.php" class="nav-item <?= $current_page === 'dashboard.php' ? 'active' : '' ?>" <?= $current_page === 'dashboard.php' ? 'aria-current="page"' : '' ?>><?= admin_icon('grid') ?><span class="sidebar-text">Visão Geral</span></a>
+  <p class="nav-label sidebar-text">GERENCIAMENTO</p>
+  <?php foreach ($navGroups as $group): [$key,$label,$icon,$create,$list,$createLabel,$listLabel] = $group; $active = in_array($current_page, [$create,$list], true); ?>
+  <div class="nav-group">
+   <button type="button" id="<?= dashboard_escape($key) ?>DropdownBtn" class="nav-item <?= $active ? 'group-active' : '' ?>" aria-expanded="<?= $active ? 'true' : 'false' ?>" aria-controls="<?= dashboard_escape($key) ?>Submenu" aria-label="<?= dashboard_escape($label) ?>">
+    <?= admin_icon($icon) ?><span class="sidebar-text"><?= dashboard_escape($label) ?></span>
+    <?php if ($key === 'estoque' && count($admin_stock['alerts'])): ?><span class="nav-count" aria-label="<?= count($admin_stock['alerts']) ?> alertas de estoque"><?= count($admin_stock['alerts']) ?></span><?php endif; ?>
+    <?= admin_icon('chevron', 'nav-chevron') ?>
+   </button>
+   <div id="<?= dashboard_escape($key) ?>Submenu" class="nav-submenu <?= $active ? 'is-open' : '' ?>" <?= $active ? '' : 'inert' ?>>
+    <div>
+    <?php foreach ([[$create,$createLabel],[$list,$listLabel]] as $link): ?>
+     <a href="<?= dashboard_escape($link[0]) ?>" class="nav-subitem <?= $current_page === $link[0] ? 'active' : '' ?>" <?= $current_page === $link[0] ? 'aria-current="page"' : '' ?>><?= dashboard_escape($link[1]) ?></a>
+    <?php endforeach; ?>
+    </div>
+   </div>
+  </div>
+  <?php endforeach; ?>
+ </nav>
+ <div class="sidebar-bottom"><a href="../index.html" class="nav-item"><?= admin_icon('leaf') ?><span class="sidebar-text">Ver site público</span></a><form action="logout.php" method="POST"><?= csrf_field() ?><button class="nav-item logout-button" type="submit"><?= admin_icon('logout') ?><span class="sidebar-text">Sair do Sistema</span></button></form></div>
+</aside>
+<div id="mainWrapper" class="admin-wrapper">
+ <header class="admin-topbar">
+  <div class="topbar-start"><button id="openSidebar" class="icon-button" aria-label="Abrir ou recolher menu" aria-controls="sidebar" aria-expanded="true"><?= admin_icon('menu') ?></button><span class="topbar-breadcrumb">Painel <span>/</span> <strong><?= $current_page === 'dashboard.php' ? 'Visão Geral' : 'Gerenciamento' ?></strong></span></div>
+  <div class="topbar-actions">
+   <div class="quick-search"><label for="adminSearch" class="sr-only">Buscar uma tela do sistema</label><?= admin_icon('search') ?><input id="adminSearch" type="search" placeholder="Buscar uma tela..." autocomplete="off" aria-controls="searchResults" aria-expanded="false"><div id="searchResults" class="header-popover search-results" hidden></div></div>
+   <button id="themeToggle" class="icon-button" aria-label="Alternar tema"><span class="theme-sun"><?= admin_icon('sun') ?></span><span class="theme-moon"><?= admin_icon('moon') ?></span></button>
+   <div class="popover-anchor"><button id="notificationsToggle" class="icon-button" aria-label="Notificações de estoque" aria-controls="notificationsPanel" aria-expanded="false"><?= admin_icon('bell') ?><?php if (count($admin_stock['alerts'])): ?><span class="notification-dot"></span><?php endif; ?></button>
+    <div id="notificationsPanel" class="header-popover" hidden><strong>Alertas de estoque</strong>
+    <?php if (!$admin_stock['ready']): ?><p>Configure o estoque mínimo para receber alertas.</p><?php elseif (!$admin_stock['alerts']): ?><p>Nenhum alerta no momento.</p><?php else: foreach (array_slice($admin_stock['alerts'],0,5) as $alert): ?><a href="estoque.php"><span><?= dashboard_escape($alert['Pro_Nome']) ?></span><small><?= $alert['critical'] ? 'Crítico' : 'Baixo' ?> · <?= dashboard_escape($alert['saldo']) ?> un.</small></a><?php endforeach; endif; ?>
+    <a href="estoque.php" class="popover-footer">Ver estoque <?= admin_icon('arrow') ?></a></div>
+   </div>
+   <div class="popover-anchor"><button id="userMenuToggle" class="user-button" aria-expanded="false" aria-controls="userPanel" aria-label="Menu do usuário"><span class="avatar"><?= dashboard_escape(mb_substr($_SESSION['log_nome'],0,1,'UTF-8')) ?></span><span class="user-info"><strong><?= dashboard_escape($_SESSION['log_nome']) ?></strong><small>Administrador</small></span><?= admin_icon('chevron') ?></button><div id="userPanel" class="header-popover" hidden><strong><?= dashboard_escape($_SESSION['log_nome']) ?></strong><a href="logins.php">Gerenciar acessos</a><form action="logout.php" method="POST"><?= csrf_field() ?><button type="submit"><?= admin_icon('logout') ?> Sair do sistema</button></form></div></div>
+  </div>
+ </header>
+ <main id="adminMain" class="admin-main">

@@ -1,26 +1,33 @@
 <?php
-session_start();
-include("../conexao/banco.php");
-
-$erro = "";
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $login = mysqli_real_escape_string($con, $_POST['login']);
-    $senha = mysqli_real_escape_string($con, $_POST['senha']);
-    $senha_md5 = md5($senha);
-
-    $sql = "SELECT * FROM tb_login WHERE log_login = '$login' AND log_senha = '$senha_md5'";
-    $resultado = mysqli_query($con, $sql);
-
-    if (mysqli_num_rows($resultado) == 1) {
-        $usuario = mysqli_fetch_assoc($resultado);
+require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/../conexao/banco.php';
+$erro = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $login = trim($_POST['login'] ?? '');
+    $senha = $_POST['senha'] ?? '';
+    $stmt = mysqli_prepare($con, 'SELECT * FROM tb_login WHERE log_login = ? LIMIT 2');
+    mysqli_stmt_bind_param($stmt, 's', $login);
+    mysqli_stmt_execute($stmt);
+    $resultado = mysqli_stmt_get_result($stmt);
+    $usuario = mysqli_num_rows($resultado) === 1 ? mysqli_fetch_assoc($resultado) : null;
+    $legacy = $usuario && preg_match('/^[a-f0-9]{32}$/i', $usuario['log_senha']);
+    $valid = $usuario && ($legacy ? hash_equals(strtolower($usuario['log_senha']), md5($senha)) : password_verify($senha, $usuario['log_senha']));
+    if ($valid) {
+        if ($legacy || password_needs_rehash($usuario['log_senha'], PASSWORD_DEFAULT)) {
+            $hash = password_hash($senha, PASSWORD_DEFAULT);
+            $update = mysqli_prepare($con, 'UPDATE tb_login SET log_senha = ? WHERE log_codigo = ?');
+            mysqli_stmt_bind_param($update, 'si', $hash, $usuario['log_codigo']);
+            if (!mysqli_stmt_execute($update)) reject_request('Não foi possível atualizar a segurança do acesso. Tente novamente.', 503);
+        }
+        session_regenerate_id(true);
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         $_SESSION['log_codigo'] = $usuario['log_codigo'];
         $_SESSION['log_nome'] = $usuario['log_nome'];
         $_SESSION['log_login'] = $usuario['log_login'];
-        header("Location: dashboard.php");
-        exit();
-    } else {
-        $erro = "Usuário ou senha incorretos!";
+        header('Location: dashboard.php');
+        exit;
     }
+    $erro = 'Usuário ou senha incorretos!';
 }
 ?>
 <!DOCTYPE html>
@@ -53,6 +60,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
       }
     </script>
+<style>
+html:not(.dark) body{background:#f3f7f4;color:#1e293b;}
+html:not(.dark) body > .w-full{background:rgba(255,255,255,.95);border-color:#cbd5e1;}
+html:not(.dark) input{background:#f8fafc;color:#0f1710;border-color:#cbd5e1;}
+html:not(.dark) .text-slate-400{color:#475569;}
+html:not(.dark) #themeToggle{background:#e2e8f0;border-color:#cbd5e1;}
+:focus-visible{outline:3px solid #9cd438;outline-offset:3px;}
+</style>
 </head>
 <body class="bg-[#0b120d] text-slate-100 font-sans min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
     <!-- Ambient glow -->
@@ -82,13 +97,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
 
         <form action="" method="POST" class="space-y-5">
+            <?= csrf_field() ?>
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Usuário / Login</label>
-                <input type="text" name="login" required placeholder="Ex: admin" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#b7f052] transition-colors">
+                <label for="login" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Usuário / Login</label>
+                <input type="text" id="login" name="login" autocomplete="username" required placeholder="Ex: admin" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#b7f052] transition-colors">
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Senha</label>
-                <input type="password" name="senha" required placeholder="••••••••" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#b7f052] transition-colors">
+                <input type="password" id="senha" name="senha" autocomplete="current-password" required placeholder="••••••••" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#b7f052] transition-colors">
             </div>
             <button type="submit" class="w-full bg-[#b7f052] text-[#0f1710] font-bold py-3.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-[#b7f052]/20 flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
                 Entrar no Painel →

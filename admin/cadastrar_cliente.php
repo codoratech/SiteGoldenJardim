@@ -1,4 +1,12 @@
 <?php
+require_once __DIR__ . "/bootstrap.php";
+require_login();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['acao'] ?? '') !== 'excluir') {
+    foreach (['cli_Nome'] as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') reject_request('Preencha todos os campos obrigatórios.');
+    }
+}
+
 include("../conexao/banco.php");
 
 $msg = "";
@@ -14,14 +22,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($nome)) {
         $msg_erro = "O nome do cliente é obrigatório.";
     } else {
-        $sql = "INSERT INTO TB_Clientes (cli_Nome, cli_Tipo, cli_Telefone, cli_Email, cli_Endereco) 
+        $sql = "INSERT INTO tb_clientes (cli_Nome, cli_Tipo, cli_Telefone, cli_Email, cli_Endereco)
                 VALUES ('$nome', '$tipo', '$telefone', '$email', '$endereco')";
 
         if (mysqli_query($con, $sql)) {
             header("Location: cadastrar_cliente.php?ok=insert");
             exit();
         } else {
-            $msg_erro = "Erro ao cadastrar: " . mysqli_error($con);
+            $msg_erro = "Erro ao cadastrar: " . database_error($con);
         }
     }
 }
@@ -49,6 +57,7 @@ include("header.php");
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-3xl">
     <h3 class="font-display font-bold text-lg mb-4">Informações do Cliente</h3>
     <form action="cadastrar_cliente.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <?= csrf_field() ?>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome Completo</label>
             <input type="text" name="cli_Nome" required class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: João da Silva">

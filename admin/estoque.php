@@ -1,13 +1,23 @@
 <?php
+require_once __DIR__ . "/bootstrap.php";
+require_login();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['acao'] ?? '') !== 'excluir') {
+    foreach (['Est_Tipo', 'Est_Quantidade'] as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') reject_request('Preencha todos os campos obrigatórios.');
+    }
+}
+
 include("../conexao/banco.php");
+require_once __DIR__ . "/inventory_helpers.php";
 
 $msg = "";
 $msg_erro = "";
 
-if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-    if (!mysqli_query($con, "DELETE FROM TB_Estoque WHERE ID_Estoque = $id")) {
-        $msg_erro = "Não foi possível excluir: este registro possui dependências. Detalhe: " . mysqli_error($con);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'excluir' && isset($_POST['id'])) {
+    $id = intval($_POST['id']);
+    if ($id < 1) reject_request('Registro inválido.');
+    if (!inventory_execute($con, 'DELETE FROM tb_estoque WHERE ID_Estoque = ?', 'i', [$id])) {
+        $msg_erro = "Não foi possível excluir: este registro possui dependências. Detalhe: " . database_error($con);
     } else {
         $msg = "Registro excluído com sucesso!";
     }
@@ -20,14 +30,13 @@ if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id_estoque'])) {
     $id = intval($_POST['id_estoque']);
-    $tipo = mysqli_real_escape_string($con, $_POST['Est_Tipo']);
-    $qtd = intval($_POST['Est_Quantidade']);
+    [$tipo, $qtd, $produto_id] = inventory_movement($con);
     
-    if (mysqli_query($con, "UPDATE TB_Estoque SET Est_Tipo='$tipo', Est_Quantidade=$qtd WHERE ID_Estoque=$id")) {
+    if (inventory_execute($con, 'UPDATE tb_estoque SET Est_Tipo=?, Est_Quantidade=?, TB_Produtos_ID_Produto=? WHERE ID_Estoque=?', 'siii', [$tipo, $qtd, $produto_id, $id])) {
         header("Location: estoque.php?ok=update");
         exit();
     } else {
-        $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
+        $msg_erro = "Erro ao atualizar: " . database_error($con);
     }
 }
 
@@ -39,11 +48,10 @@ if (isset($_GET['ok'])) {
 $edit_estoque = null;
 if (isset($_GET['acao']) && $_GET['acao'] == 'editar' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    $res = mysqli_query($con, "SELECT * FROM TB_Estoque WHERE ID_Estoque = $id");
-    $edit_estoque = mysqli_fetch_assoc($res);
+    $edit_estoque = dashboard_query($con, 'SELECT * FROM tb_estoque WHERE ID_Estoque = ?', 'i', [$id])[0] ?? null;
 }
 
-$estoque = mysqli_query($con, "SELECT * FROM TB_Estoque ORDER BY ID_Estoque DESC");
+$estoque = dashboard_query($con, 'SELECT e.*, p.Pro_Nome FROM tb_estoque e LEFT JOIN tb_produtos p ON p.ID_Produto = e.TB_Produtos_ID_Produto ORDER BY e.ID_Estoque DESC');
 
 include("header.php");
 ?>
@@ -65,15 +73,9 @@ include("header.php");
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-3xl">
     <h3 class="font-display font-bold text-lg mb-4">Editar Movimentação (#<?= $edit_estoque['ID_Estoque'] ?>)</h3>
     <form action="estoque.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <?= csrf_field() ?>
         <input type="hidden" name="id_estoque" value="<?= $edit_estoque['ID_Estoque'] ?>">
-        <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Tipo de Movimentação / Item</label>
-            <input type="text" name="Est_Tipo" required value="<?= htmlspecialchars($edit_estoque['Est_Tipo']) ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
-        </div>
-        <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Quantidade</label>
-            <input type="number" name="Est_Quantidade" required value="<?= $edit_estoque['Est_Quantidade'] ?>" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
-        </div>
+        <?php $form_stock = $edit_estoque; include __DIR__ . '/stock_fields.php'; ?>
         <div class="md:col-span-2 flex items-center gap-3 pt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider">Atualizar</button>
             <a href="estoque.php" class="bg-white/10 text-slate-300 font-bold py-2.5 px-6 rounded-xl hover:bg-white/25 transition-all text-xs uppercase tracking-wider">Cancelar</a>
@@ -93,24 +95,31 @@ include("header.php");
                 <tr class="border-b border-white/10 bg-black/20 text-xs uppercase tracking-wider text-slate-400">
                     <th class="p-4">ID</th>
                     <th class="p-4">Tipo / Item</th>
+                    <th class="p-4">Produto</th>
                     <th class="p-4">Quantidade</th>
                     <th class="p-4">Data da Movimentação</th>
                     <th class="p-4 text-center">Ações</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-white/5 text-sm">
-                <?php while($row = mysqli_fetch_assoc($estoque)): ?>
+                <?php foreach($estoque as $row): ?>
                 <tr class="hover:bg-white/5 transition-colors">
                     <td class="p-4 font-mono text-xs text-[#b7f052]">#<?= $row['ID_Estoque'] ?></td>
                     <td class="p-4 font-bold text-white"><?= htmlspecialchars($row['Est_Tipo']) ?></td>
+                    <td class="p-4 text-slate-300"><?= dashboard_escape($row['Pro_Nome'] ?? 'Sem vínculo') ?></td>
                     <td class="p-4 font-mono <?= $row['Est_Quantidade'] >= 0 ? 'text-emerald-400' : 'text-red-400' ?>"><?= $row['Est_Quantidade'] ?></td>
                     <td class="p-4 text-slate-300"><?= date('d/m/Y H:i', strtotime($row['Est_DataMovimentacao'])) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="estoque.php?acao=editar&id=<?= $row['ID_Estoque'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="estoque.php?acao=excluir&id=<?= $row['ID_Estoque'] ?>" class="text-red-400 hover:underline text-xs" data-confirm-msg="Tem certeza que deseja excluir este registro de estoque?">Excluir</a>
+                        <form action="estoque.php" method="POST" class="inline" data-delete-form data-confirm-msg="Tem certeza que deseja excluir este registro de estoque?">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="acao" value="excluir">
+                            <input type="hidden" name="id" value="<?= $row['ID_Estoque'] ?>">
+                            <button type="submit" class="text-red-400 hover:underline text-xs">Excluir</button>
+                        </form>
                     </td>
                 </tr>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>

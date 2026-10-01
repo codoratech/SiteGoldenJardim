@@ -1,13 +1,22 @@
 <?php
+require_once __DIR__ . "/bootstrap.php";
+require_login();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['acao'] ?? '') !== 'excluir') {
+    foreach (['cli_Nome'] as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') reject_request('Preencha todos os campos obrigatórios.');
+    }
+}
+
 include("../conexao/banco.php");
 
 $msg = "";
 $msg_erro = "";
 
-if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-    if (!mysqli_query($con, "DELETE FROM TB_Clientes WHERE ID_Cliente = $id")) {
-        $msg_erro = "Não foi possível excluir: este cliente possui registros vinculados. Detalhe: " . mysqli_error($con);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'excluir' && isset($_POST['id'])) {
+    $id = intval($_POST['id']);
+    if ($id < 1) reject_request('Registro inválido.');
+    if (!mysqli_query($con, "DELETE FROM tb_clientes WHERE ID_Cliente = $id")) {
+        $msg_erro = "Não foi possível excluir: este cliente possui registros vinculados. Detalhe: " . database_error($con);
     } else {
         $msg = "Cliente excluído com sucesso!";
     }
@@ -25,16 +34,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id_cliente'])) {
     $email    = mysqli_real_escape_string($con, $_POST['cli_Email']);
     $endereco = mysqli_real_escape_string($con, $_POST['cli_Endereco']);
 
-    $sql = "UPDATE TB_Clientes 
-            SET cli_Nome='$nome', cli_Tipo='$tipo', cli_Telefone='$telefone', 
-                cli_Email='$email', cli_Endereco='$endereco' 
+    $sql = "UPDATE tb_clientes
+            SET cli_Nome='$nome', cli_Tipo='$tipo', cli_Telefone='$telefone',
+                cli_Email='$email', cli_Endereco='$endereco'
             WHERE ID_Cliente=$id";
 
     if (mysqli_query($con, $sql)) {
         header("Location: clientes.php?ok=update");
         exit();
     } else {
-        $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
+        $msg_erro = "Erro ao atualizar: " . database_error($con);
     }
 }
 
@@ -46,11 +55,11 @@ if (isset($_GET['ok'])) {
 $edit_cliente = null;
 if (isset($_GET['acao']) && $_GET['acao'] == 'editar' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    $res = mysqli_query($con, "SELECT * FROM TB_Clientes WHERE ID_Cliente = $id");
+    $res = mysqli_query($con, "SELECT * FROM tb_clientes WHERE ID_Cliente = $id");
     $edit_cliente = mysqli_fetch_assoc($res);
 }
 
-$clientes = mysqli_query($con, "SELECT * FROM TB_Clientes ORDER BY ID_Cliente DESC");
+$clientes = mysqli_query($con, "SELECT * FROM tb_clientes ORDER BY ID_Cliente DESC");
 
 include("header.php");
 ?>
@@ -72,6 +81,7 @@ include("header.php");
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-3xl">
     <h3 class="font-display font-bold text-lg mb-4">Editar Cliente (#<?= $edit_cliente['ID_Cliente'] ?>)</h3>
     <form action="clientes.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <?= csrf_field() ?>
         <input type="hidden" name="id_cliente" value="<?= $edit_cliente['ID_Cliente'] ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome Completo</label>
@@ -134,7 +144,12 @@ include("header.php");
                     <td class="p-4 text-slate-300"><?= htmlspecialchars($row['cli_Endereco']) ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="clientes.php?acao=editar&id=<?= $row['ID_Cliente'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="clientes.php?acao=excluir&id=<?= $row['ID_Cliente'] ?>" class="text-red-400 hover:underline text-xs" data-confirm-msg="Tem certeza que deseja excluir este cliente?">Excluir</a>
+                        <form action="clientes.php" method="POST" class="inline" data-delete-form data-confirm-msg="Tem certeza que deseja excluir este cliente?">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="acao" value="excluir">
+                            <input type="hidden" name="id" value="<?= $row['ID_Cliente'] ?>">
+                            <button type="submit" class="text-red-400 hover:underline text-xs">Excluir</button>
+                        </form>
                     </td>
                 </tr>
                 <?php endwhile; ?>

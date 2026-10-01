@@ -1,13 +1,22 @@
 <?php
+require_once __DIR__ . "/bootstrap.php";
+require_login();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['acao'] ?? '') !== 'excluir') {
+    foreach (['Ser_Nome', 'Ser_Preco'] as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') reject_request('Preencha todos os campos obrigatórios.');
+    }
+}
+
 include("../conexao/banco.php");
 
 $msg = "";
 $msg_erro = "";
 
-if (isset($_GET['acao']) && $_GET['acao'] == 'excluir' && isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-    if (!mysqli_query($con, "DELETE FROM TB_Servicos WHERE ID_Servico = $id")) {
-        $msg_erro = "Não foi possível excluir: este serviço possui registros vinculados. Detalhe: " . mysqli_error($con);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'excluir' && isset($_POST['id'])) {
+    $id = intval($_POST['id']);
+    if ($id < 1) reject_request('Registro inválido.');
+    if (!mysqli_query($con, "DELETE FROM tb_servicos WHERE ID_Servico = $id")) {
+        $msg_erro = "Não foi possível excluir: este serviço possui registros vinculados. Detalhe: " . database_error($con);
     } else {
         $msg = "Serviço excluído com sucesso!";
     }
@@ -24,11 +33,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id_servico'])) {
     $desc = mysqli_real_escape_string($con, $_POST['Ser_Descricao']);
     $preco = max(0, floatval(str_replace(',', '.', str_replace(['R$', ' '], '', $_POST['Ser_Preco']))));
     
-    if (mysqli_query($con, "UPDATE TB_Servicos SET Ser_Nome='$nome', Ser_Descricao='$desc', Ser_Preco=$preco WHERE ID_Servico=$id")) {
+    if (mysqli_query($con, "UPDATE tb_servicos SET Ser_Nome='$nome', Ser_Descricao='$desc', Ser_Preco=$preco WHERE ID_Servico=$id")) {
         header("Location: servicos.php?ok=update");
         exit();
     } else {
-        $msg_erro = "Erro ao atualizar: " . mysqli_error($con);
+        $msg_erro = "Erro ao atualizar: " . database_error($con);
     }
 }
 
@@ -40,11 +49,11 @@ if (isset($_GET['ok'])) {
 $edit_servico = null;
 if (isset($_GET['acao']) && $_GET['acao'] == 'editar' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    $res = mysqli_query($con, "SELECT * FROM TB_Servicos WHERE ID_Servico = $id");
+    $res = mysqli_query($con, "SELECT * FROM tb_servicos WHERE ID_Servico = $id");
     $edit_servico = mysqli_fetch_assoc($res);
 }
 
-$servicos = mysqli_query($con, "SELECT * FROM TB_Servicos ORDER BY ID_Servico DESC");
+$servicos = mysqli_query($con, "SELECT * FROM tb_servicos ORDER BY ID_Servico DESC");
 
 include("header.php");
 ?>
@@ -66,6 +75,7 @@ include("header.php");
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-3xl">
     <h3 class="font-display font-bold text-lg mb-4">Editar Serviço (#<?= $edit_servico['ID_Servico'] ?>)</h3>
     <form action="servicos.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <?= csrf_field() ?>
         <input type="hidden" name="id_servico" value="<?= $edit_servico['ID_Servico'] ?>">
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Serviço</label>
@@ -112,7 +122,12 @@ include("header.php");
                     <td class="p-4 font-mono text-emerald-400">R$ <?= number_format($row['Ser_Preco'], 2, ',', '.') ?></td>
                     <td class="p-4 text-center space-x-2">
                         <a href="servicos.php?acao=editar&id=<?= $row['ID_Servico'] ?>" class="text-blue-400 hover:underline text-xs">Editar</a>
-                        <a href="servicos.php?acao=excluir&id=<?= $row['ID_Servico'] ?>" class="text-red-400 hover:underline text-xs" data-confirm-msg="Tem certeza que deseja excluir este serviço?">Excluir</a>
+                        <form action="servicos.php" method="POST" class="inline" data-delete-form data-confirm-msg="Tem certeza que deseja excluir este serviço?">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="acao" value="excluir">
+                            <input type="hidden" name="id" value="<?= $row['ID_Servico'] ?>">
+                            <button type="submit" class="text-red-400 hover:underline text-xs">Excluir</button>
+                        </form>
                     </td>
                 </tr>
                 <?php endwhile; ?>

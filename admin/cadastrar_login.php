@@ -1,4 +1,12 @@
 <?php
+require_once __DIR__ . "/bootstrap.php";
+require_login();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['acao'] ?? '') !== 'excluir') {
+    foreach (['log_nome', 'log_login', 'log_senha'] as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') reject_request('Preencha todos os campos obrigatórios.');
+    }
+}
+
 include("../conexao/banco.php");
 
 $msg = "";
@@ -8,16 +16,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome = mysqli_real_escape_string($con, $_POST['log_nome']);
     $login = mysqli_real_escape_string($con, $_POST['log_login']);
     $senha = $_POST['log_senha'];
+    if (trim($_POST['log_nome']) === '' || trim($_POST['log_login']) === '') reject_request('Nome e login são obrigatórios.');
+    if (strlen($_POST['log_nome']) > 120 || strlen($_POST['log_login']) > 50) reject_request('Nome ou login excede o tamanho permitido.');
+    $duplicate = mysqli_prepare($con, 'SELECT log_codigo FROM tb_login WHERE log_login = ? AND log_codigo <> ?');
+    $exclude_id = 0;
+    mysqli_stmt_bind_param($duplicate, 'si', $_POST['log_login'], $exclude_id);
+    mysqli_stmt_execute($duplicate);
+    if (mysqli_num_rows(mysqli_stmt_get_result($duplicate)) > 0) reject_request('Este login já está em uso.');
     
     if (empty($nome) || empty($login) || empty($senha)) {
         $msg_erro = "Todos os campos são obrigatórios.";
     } else {
-        $senha_md5 = md5($senha);
-        if (mysqli_query($con, "INSERT INTO tb_login (log_nome, log_login, log_senha) VALUES ('$nome', '$login', '$senha_md5')")) {
+        if (strlen($senha) < 8) reject_request('A senha deve ter pelo menos 8 caracteres.');
+        $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+        if (mysqli_query($con, "INSERT INTO tb_login (log_nome, log_login, log_senha) VALUES ('$nome', '$login', '$senha_hash')")) {
             header("Location: cadastrar_login.php?ok=insert");
             exit();
         } else {
-            $msg_erro = "Erro ao cadastrar login: " . mysqli_error($con);
+            $msg_erro = "Erro ao cadastrar login: " . database_error($con);
         }
     }
 }
@@ -45,6 +61,7 @@ include("header.php");
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-2xl">
     <h3 class="font-display font-bold text-lg mb-4">Informações do Credenciamento</h3>
     <form action="cadastrar_login.php" method="POST" class="space-y-4">
+        <?= csrf_field() ?>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Nome do Usuário</label>
             <input type="text" name="log_nome" required class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="Ex: Administrador">
@@ -55,7 +72,7 @@ include("header.php");
         </div>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Senha</label>
-            <input type="password" name="log_senha" required class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="••••••••">
+            <input type="password" name="log_senha" minlength="8" autocomplete="new-password" required class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]" placeholder="••••••••">
         </div>
         <div class="flex items-center gap-3 pt-2">
             <button type="submit" class="bg-[#b7f052] text-[#0f1710] font-bold py-2.5 px-6 rounded-xl hover:bg-[#9cd438] transition-all text-xs uppercase tracking-wider">Salvar Cadastro</button>

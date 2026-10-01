@@ -8,15 +8,14 @@ CREATE TABLE IF NOT EXISTS tb_login (
     log_login VARCHAR(50) NOT NULL,
     log_senha VARCHAR(255) NOT NULL,
     log_data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (log_codigo)
+    PRIMARY KEY (log_codigo),
+    UNIQUE KEY uq_log_login (log_login)
 );
 
--- Usuário admin padrão (senha: admin123)
-INSERT INTO tb_login (log_nome, log_login, log_senha) VALUES 
-('Administrador Golden Jardim', 'Admin', MD5('admin123'))
-ON DUPLICATE KEY UPDATE log_codigo=log_codigo;
+-- Crie o primeiro administrador com: php tools/criar_admin.php
+-- Não são instaladas contas com senhas públicas.
 
-CREATE TABLE IF NOT EXISTS TB_Fornecedores (
+CREATE TABLE IF NOT EXISTS tb_fornecedores (
     ID_Fornecedor INT(11) NOT NULL AUTO_INCREMENT,
     For_Nome VARCHAR(100) NOT NULL,
     For_Telefone VARCHAR(20),
@@ -25,7 +24,7 @@ CREATE TABLE IF NOT EXISTS TB_Fornecedores (
     PRIMARY KEY (ID_Fornecedor)
 );
 
-CREATE TABLE IF NOT EXISTS TB_Produtos (
+CREATE TABLE IF NOT EXISTS tb_produtos (
     ID_Produto INT(11) NOT NULL AUTO_INCREMENT,
     Pro_Nome VARCHAR(100) NOT NULL,
     Pro_Descricao VARCHAR(255),
@@ -33,17 +32,17 @@ CREATE TABLE IF NOT EXISTS TB_Produtos (
     PRIMARY KEY (ID_Produto)
 );
 
-CREATE TABLE IF NOT EXISTS TB_Compras (
+CREATE TABLE IF NOT EXISTS tb_compras (
     ID_Compra INT(11) NOT NULL AUTO_INCREMENT,
     TB_Fornecedores_ID_Fornecedor INT(11) NOT NULL,
     Com_DataCompra DATETIME DEFAULT CURRENT_TIMESTAMP,
     Com_ValorTotal DECIMAL(10,2) NOT NULL,
     Com_Status VARCHAR(20) DEFAULT 'Pendente',
     PRIMARY KEY (ID_Compra),
-    CONSTRAINT fk_compras_fornecedor FOREIGN KEY (TB_Fornecedores_ID_Fornecedor) REFERENCES TB_Fornecedores (ID_Fornecedor)
+    CONSTRAINT fk_compras_fornecedor FOREIGN KEY (TB_Fornecedores_ID_Fornecedor) REFERENCES tb_fornecedores (ID_Fornecedor)
 );
 
-CREATE TABLE IF NOT EXISTS TB_ItensCompra (
+CREATE TABLE IF NOT EXISTS tb_itenscompra (
     ID_ItemCompra INT(11) NOT NULL AUTO_INCREMENT,
     TB_Compras_ID_Compra INT(11) NOT NULL,
     TB_Produtos_ID_Produto INT(11) NOT NULL,
@@ -51,11 +50,11 @@ CREATE TABLE IF NOT EXISTS TB_ItensCompra (
     IteCom_PrecoUnitario DECIMAL(10,2) NOT NULL,
     IteCom_Subtotal DECIMAL(10,2) NOT NULL,
     PRIMARY KEY (ID_ItemCompra),
-    CONSTRAINT fk_itenscompra_compra FOREIGN KEY (TB_Compras_ID_Compra) REFERENCES TB_Compras (ID_Compra),
-    CONSTRAINT fk_itenscompra_produto FOREIGN KEY (TB_Produtos_ID_Produto) REFERENCES TB_Produtos (ID_Produto)
+    CONSTRAINT fk_itenscompra_compra FOREIGN KEY (TB_Compras_ID_Compra) REFERENCES tb_compras (ID_Compra),
+    CONSTRAINT fk_itenscompra_produto FOREIGN KEY (TB_Produtos_ID_Produto) REFERENCES tb_produtos (ID_Produto)
 );
 
-CREATE TABLE IF NOT EXISTS TB_Clientes (
+CREATE TABLE IF NOT EXISTS tb_clientes (
     ID_Cliente INT(11) NOT NULL AUTO_INCREMENT,
     cli_Nome VARCHAR(150) NOT NULL,
     cli_Tipo VARCHAR(30) DEFAULT 'Residencial',
@@ -66,7 +65,7 @@ CREATE TABLE IF NOT EXISTS TB_Clientes (
     PRIMARY KEY (ID_Cliente)
 );
 
-CREATE TABLE IF NOT EXISTS TB_Servicos (
+CREATE TABLE IF NOT EXISTS tb_servicos (
     ID_Servico INT(11) NOT NULL AUTO_INCREMENT,
     Ser_Nome VARCHAR(100) NOT NULL,
     Ser_Descricao VARCHAR(255),
@@ -74,7 +73,7 @@ CREATE TABLE IF NOT EXISTS TB_Servicos (
     PRIMARY KEY (ID_Servico)
 );
 
-CREATE TABLE IF NOT EXISTS TB_Estoque (
+CREATE TABLE IF NOT EXISTS tb_estoque (
     ID_Estoque INT(11) NOT NULL AUTO_INCREMENT,
     Est_Tipo VARCHAR(20) NOT NULL,
     Est_Quantidade INT(11) NOT NULL,
@@ -82,7 +81,7 @@ CREATE TABLE IF NOT EXISTS TB_Estoque (
     PRIMARY KEY (ID_Estoque)
 );
 
-CREATE TABLE IF NOT EXISTS TB_OrdensServico (
+CREATE TABLE IF NOT EXISTS tb_ordensservico (
     ID_Ordem INT(11) NOT NULL AUTO_INCREMENT,
     TB_Clientes_ID_Cliente INT(11) NOT NULL,
     Or_DataServico DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -90,10 +89,10 @@ CREATE TABLE IF NOT EXISTS TB_OrdensServico (
     Ord_ValorTotal DECIMAL(10,2) NOT NULL,
     Ord_Observacoes VARCHAR(500),
     PRIMARY KEY (ID_Ordem),
-    CONSTRAINT fk_os_cliente FOREIGN KEY (TB_Clientes_ID_Cliente) REFERENCES TB_Clientes (ID_Cliente)
+    CONSTRAINT fk_os_cliente FOREIGN KEY (TB_Clientes_ID_Cliente) REFERENCES tb_clientes (ID_Cliente)
 );
 
-CREATE TABLE IF NOT EXISTS TB_ItensOrdemServico (
+CREATE TABLE IF NOT EXISTS tb_itensordemservico (
     ID_Item INT(11) NOT NULL AUTO_INCREMENT,
     TB_Servicos_ID_Servico INT(11) NOT NULL,
     TB_OrdensServico_ID_Ordem INT(11) NOT NULL,
@@ -101,11 +100,11 @@ CREATE TABLE IF NOT EXISTS TB_ItensOrdemServico (
     Ite_PrecoUnitario DECIMAL(10,2) NOT NULL,
     Ite_Subtotal DECIMAL(10,2) NOT NULL,
     PRIMARY KEY (ID_Item),
-    CONSTRAINT fk_itensos_servico FOREIGN KEY (TB_Servicos_ID_Servico) REFERENCES TB_Servicos (ID_Servico),
-    CONSTRAINT fk_itensos_os FOREIGN KEY (TB_OrdensServico_ID_Ordem) REFERENCES TB_OrdensServico (ID_Ordem)
+    CONSTRAINT fk_itensos_servico FOREIGN KEY (TB_Servicos_ID_Servico) REFERENCES tb_servicos (ID_Servico),
+    CONSTRAINT fk_itensos_os FOREIGN KEY (TB_OrdensServico_ID_Ordem) REFERENCES tb_ordensservico (ID_Ordem)
 );
 
-CREATE TABLE IF NOT EXISTS TB_ContasReceber (
+CREATE TABLE IF NOT EXISTS tb_contasreceber (
     ID_ContaReceber INT(11) NOT NULL AUTO_INCREMENT,
     TB_OrdensServico_ID_Ordem INT(11) DEFAULT NULL,
     TB_Clientes_ID_Cliente INT(11) NOT NULL,
@@ -114,11 +113,11 @@ CREATE TABLE IF NOT EXISTS TB_ContasReceber (
     Con_Status VARCHAR(20) DEFAULT 'Pendente',
     Con_FormaPagamento VARCHAR(50) DEFAULT 'Pix',
     PRIMARY KEY (ID_ContaReceber),
-    CONSTRAINT fk_contasreceber_os FOREIGN KEY (TB_OrdensServico_ID_Ordem) REFERENCES TB_OrdensServico (ID_Ordem),
-    CONSTRAINT fk_contasreceber_cliente FOREIGN KEY (TB_Clientes_ID_Cliente) REFERENCES TB_Clientes (ID_Cliente)
+    CONSTRAINT fk_contasreceber_os FOREIGN KEY (TB_OrdensServico_ID_Ordem) REFERENCES tb_ordensservico (ID_Ordem),
+    CONSTRAINT fk_contasreceber_cliente FOREIGN KEY (TB_Clientes_ID_Cliente) REFERENCES tb_clientes (ID_Cliente)
 );
 
-CREATE TABLE IF NOT EXISTS TB_Agendamentos (
+CREATE TABLE IF NOT EXISTS tb_agendamentos (
     ID_Agendamento INT(11) NOT NULL AUTO_INCREMENT,
     TB_OrdensServico_ID_Ordem INT(11) DEFAULT NULL,
     TB_Clientes_ID_Cliente INT(11) NOT NULL,
@@ -126,6 +125,6 @@ CREATE TABLE IF NOT EXISTS TB_Agendamentos (
     Age_Status VARCHAR(30) DEFAULT 'Agendado',
     Age_Observacoes VARCHAR(255),
     PRIMARY KEY (ID_Agendamento),
-    CONSTRAINT fk_agendamentos_os FOREIGN KEY (TB_OrdensServico_ID_Ordem) REFERENCES TB_OrdensServico (ID_Ordem),
-    CONSTRAINT fk_agendamentos_cliente FOREIGN KEY (TB_Clientes_ID_Cliente) REFERENCES TB_Clientes (ID_Cliente)
+    CONSTRAINT fk_agendamentos_os FOREIGN KEY (TB_OrdensServico_ID_Ordem) REFERENCES tb_ordensservico (ID_Ordem),
+    CONSTRAINT fk_agendamentos_cliente FOREIGN KEY (TB_Clientes_ID_Cliente) REFERENCES tb_clientes (ID_Cliente)
 );

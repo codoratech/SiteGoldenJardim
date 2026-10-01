@@ -1,4 +1,12 @@
 <?php
+require_once __DIR__ . "/bootstrap.php";
+require_login();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['acao'] ?? '') !== 'excluir') {
+    foreach (['TB_Clientes_ID_Cliente', 'Ord_ValorTotal'] as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') reject_request('Preencha todos os campos obrigatórios.');
+    }
+}
+
 include("../conexao/banco.php");
 
 $msg = "";
@@ -13,11 +21,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($cli_id)) {
         $msg_erro = "O cliente é obrigatório.";
     } else {
-        if (mysqli_query($con, "INSERT INTO TB_OrdensServico (TB_Clientes_ID_Cliente, Or_Status, Ord_ValorTotal, Ord_Observacoes) VALUES ($cli_id, '$status', $valor, '$obs')")) {
+        if (mysqli_query($con, "INSERT INTO tb_ordensservico (TB_Clientes_ID_Cliente, Or_Status, Ord_ValorTotal, Ord_Observacoes) VALUES ($cli_id, '$status', $valor, '$obs')")) {
             header("Location: cadastrar_ordem.php?ok=insert");
             exit();
         } else {
-            $msg_erro = "Erro ao cadastrar: " . mysqli_error($con);
+            $msg_erro = "Erro ao cadastrar: " . database_error($con);
         }
     }
 }
@@ -26,7 +34,7 @@ if (isset($_GET['ok']) && $_GET['ok'] == 'insert') {
     $msg = "Ordem de Serviço criada com sucesso!";
 }
 
-$clientes = mysqli_query($con, "SELECT * FROM TB_Clientes ORDER BY cli_Nome ASC");
+$clientes = mysqli_query($con, "SELECT * FROM tb_clientes ORDER BY cli_Nome ASC");
 
 include("header.php");
 ?>
@@ -47,6 +55,7 @@ include("header.php");
 <div class="bg-[#121c14] border border-white/10 rounded-2xl p-6 mb-8 max-w-3xl">
     <h3 class="font-display font-bold text-lg mb-4">Informações da Ordem de Serviço</h3>
     <form action="cadastrar_ordem.php" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <?= csrf_field() ?>
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Cliente</label>
             <select name="TB_Clientes_ID_Cliente" required class="w-full bg-[#162418] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#b7f052]">
