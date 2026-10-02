@@ -18,6 +18,7 @@ if ($site_page) {
 $page_breadcrumb = $current_page === 'dashboard.php' ? 'Visão Geral' : (($page_entity['label'] ?? 'Gerenciamento').' / '.(strpos($current_page,'cadastrar_')===0 ? 'Cadastrar' : (($_GET['acao'] ?? '')==='editar' ? 'Editar' : 'Consultar')));
 if ($site_page) $page_breadcrumb = 'Site / '.$site_config['label'].' / '.(!empty($site_form) ? (!empty($site_id) ? 'Editar' : 'Cadastrar') : 'Consultar');
 if ($current_page==='site_textos.php') $page_breadcrumb = 'Site / Textos das seções / Editar';
+if ($current_page === 'perfil.php') $page_breadcrumb = 'Meu perfil';
 $admin_stock = $admin_stock ?? dashboard_stock($con);
 $navGroups = [
  ['clientes','Clientes','users','cadastrar_cliente.php','clientes.php','Cadastrar Cliente','Clientes Existentes'],
@@ -36,15 +37,15 @@ $navGroups = [
 <head>
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title><?= dashboard_escape($current_page === 'dashboard.php' ? 'Visão Geral' : ($page_entity['label'] ?? 'Painel Administrativo')) ?> — Golden Jardim</title>
+ <title><?= dashboard_escape($current_page === 'perfil.php' ? 'Meu perfil' : ($current_page === 'dashboard.php' ? 'Visão Geral' : ($page_entity['label'] ?? 'Painel Administrativo'))) ?> — Golden Jardim</title>
  <script src="../assets/js/admin-theme.js?v=2"></script>
  <link rel="preconnect" href="https://fonts.googleapis.com">
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
  <script src="https://cdn.tailwindcss.com"></script>
- <link rel="stylesheet" href="../assets/css/admin.css?v=3">
+ <link rel="stylesheet" href="../assets/css/admin.css?v=4">
  <?php if ($current_page === 'dashboard.php'): ?><link rel="stylesheet" href="../assets/css/dashboard.css?v=2"><?php endif; ?>
- <?php if ($page_entity): ?><link rel="stylesheet" href="../assets/css/admin-manage.css?v=1"><?php endif; ?>
+ <?php if ($page_entity || $current_page === 'perfil.php'): ?><link rel="stylesheet" href="../assets/css/admin-manage.css?v=1"><?php endif; ?>
  <?php if ($site_page): ?><link rel="stylesheet" href="../assets/css/admin-site.css?v=3"><?php endif; ?>
 </head>
 <body class="admin-body font-sans">
@@ -58,7 +59,7 @@ $navGroups = [
   <p class="nav-label sidebar-text">PRINCIPAL</p>
   <a href="dashboard.php" class="nav-item <?= $current_page === 'dashboard.php' ? 'active' : '' ?>" <?= $current_page === 'dashboard.php' ? 'aria-current="page"' : '' ?>><?= admin_icon('grid') ?><span class="sidebar-text">Visão Geral</span></a>
   <p class="nav-label sidebar-text">GERENCIAMENTO</p>
-  <?php foreach ($navGroups as $group): [$key,$label,$icon,$create,$list,$createLabel,$listLabel] = $group; $active = in_array($current_page, [$create,$list], true); ?>
+  <?php foreach ($navGroups as $group): [$key,$label,$icon,$create,$list,$createLabel,$listLabel] = $group; if ($key === 'logins' && !admin_is_administrator()) continue; $active = in_array($current_page, [$create,$list], true); ?>
   <div class="nav-group">
    <button type="button" id="<?= dashboard_escape($key) ?>DropdownBtn" class="nav-item <?= $active ? 'group-active' : '' ?>" aria-expanded="<?= $active ? 'true' : 'false' ?>" aria-controls="<?= dashboard_escape($key) ?>Submenu" aria-label="<?= dashboard_escape($label) ?>">
     <?= admin_icon($icon) ?><span class="sidebar-text"><?= dashboard_escape($label) ?></span>
@@ -67,20 +68,21 @@ $navGroups = [
    </button>
    <div id="<?= dashboard_escape($key) ?>Submenu" class="nav-submenu <?= $active ? 'is-open' : '' ?>" <?= $active ? '' : 'inert' ?>>
     <div>
-    <?php foreach ([[$create,$createLabel],[$list,$listLabel]] as $link): ?>
+    <?php foreach ([[$create,$createLabel],[$list,$listLabel]] as $link): if (!admin_route_allowed(admin_role(), $link[0])) continue; ?>
      <a href="<?= dashboard_escape($link[0]) ?>" class="nav-subitem <?= $current_page === $link[0] ? 'active' : '' ?>" <?= $current_page === $link[0] ? 'aria-current="page"' : '' ?>><?= dashboard_escape($link[1]) ?></a>
     <?php endforeach; ?>
     </div>
    </div>
   </div>
   <?php endforeach; ?>
-  <p class="nav-label sidebar-text">CONTEÚDO PÚBLICO</p>
+  <?php if (usuarioTemPermissao('conteudo_publico')): ?><p class="nav-label sidebar-text">CONTEÚDO PÚBLICO</p>
   <div class="nav-group">
    <button type="button" id="siteDropdownBtn" class="nav-item <?= $site_page ? 'group-active' : '' ?>" aria-expanded="<?= $site_page ? 'true' : 'false' ?>" aria-controls="siteSubmenu" aria-label="Site"><?= admin_icon('globe') ?><span class="sidebar-text">Site</span><?= admin_icon('chevron','nav-chevron') ?></button>
    <div id="siteSubmenu" class="nav-submenu <?= $site_page ? 'is-open' : '' ?>" <?= $site_page ? '' : 'inert' ?>><div>
     <?php foreach (['site_textos.php'=>'Textos das seções','site_servicos.php'=>'Serviços do site','site_projetos.php'=>'Projetos'] as $path=>$label): ?><a class="nav-subitem <?= $current_page===$path ? 'active' : '' ?>" href="<?= dashboard_escape($path) ?>" <?= $current_page===$path ? 'aria-current="page"' : '' ?>><?= dashboard_escape($label) ?></a><?php endforeach; ?>
    </div></div>
   </div>
+  <?php endif; ?>
  </nav>
  <div class="sidebar-bottom"><a href="../index.html" target="_blank" rel="noreferrer noopener" class="nav-item"><?= admin_icon('leaf') ?><span class="sidebar-text">Ver site público</span></a><form action="logout.php" method="POST"><?= csrf_field() ?><button class="nav-item logout-button" type="submit"><?= admin_icon('logout') ?><span class="sidebar-text">Sair do Sistema</span></button></form></div>
 </aside>
@@ -95,7 +97,7 @@ $navGroups = [
     <?php if (!$admin_stock['ready']): ?><p>Configure o estoque mínimo para receber alertas.</p><?php elseif (!$admin_stock['alerts']): ?><p>Nenhum alerta no momento.</p><?php else: foreach (array_slice($admin_stock['alerts'],0,5) as $alert): ?><a href="estoque.php"><span><?= dashboard_escape($alert['Pro_Nome']) ?></span><small><?= $alert['critical'] ? 'Crítico' : 'Baixo' ?> · <?= dashboard_escape($alert['saldo']) ?> un.</small></a><?php endforeach; endif; ?>
     <a href="estoque.php" class="popover-footer">Ver estoque <?= admin_icon('arrow') ?></a></div>
    </div>
-   <div class="popover-anchor"><button id="userMenuToggle" class="user-button" aria-expanded="false" aria-controls="userPanel" aria-label="Menu do usuário"><span class="avatar"><?= dashboard_escape(mb_substr($_SESSION['log_nome'],0,1,'UTF-8')) ?></span><span class="user-info"><strong><?= dashboard_escape($_SESSION['log_nome']) ?></strong><small>Administrador</small></span><?= admin_icon('chevron') ?></button><div id="userPanel" class="header-popover" hidden><strong><?= dashboard_escape($_SESSION['log_nome']) ?></strong><a href="logins.php">Gerenciar acessos</a><form action="logout.php" method="POST"><?= csrf_field() ?><button type="submit"><?= admin_icon('logout') ?> Sair do sistema</button></form></div></div>
+   <div class="popover-anchor"><button id="userMenuToggle" class="user-button" aria-expanded="false" aria-controls="userPanel" aria-label="Menu do usuário"><span class="avatar"><?= dashboard_escape(mb_substr($_SESSION['log_nome'],0,1,'UTF-8')) ?></span><span class="user-info"><strong><?= dashboard_escape($_SESSION['log_nome']) ?></strong><small><?= dashboard_escape(admin_role()) ?></small></span><?= admin_icon('chevron') ?></button><div id="userPanel" class="header-popover" hidden><strong><?= dashboard_escape($_SESSION['log_nome']) ?></strong><a href="perfil.php"><?= admin_icon('user') ?><span>Ver perfil</span></a><?php if (admin_is_administrator()): ?><a href="logins.php">Gerenciar acessos</a><?php endif; ?><form action="logout.php" method="POST"><?= csrf_field() ?><button type="submit"><?= admin_icon('logout') ?> Sair do sistema</button></form></div></div>
   </div>
  </header>
  <main id="adminMain" class="admin-main<?= $site_page ? ' site-main' : '' ?>">

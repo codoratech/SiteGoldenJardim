@@ -24,11 +24,13 @@ function reject_request($message, $status = 400) {
     exit(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
 }
 class AdminFormValidation extends RuntimeException {}
+require_once __DIR__ . '/access.php';
 function require_login() {
     if (empty($_SESSION['log_codigo'])) {
         header('Location: index.php');
         exit;
     }
+    admin_require_access();
 }
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $token = $_POST['csrf_token'] ?? '';

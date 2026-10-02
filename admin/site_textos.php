@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/bootstrap.php';
 require_login();
+exigirPermissao('conteudo_publico');
 require_once __DIR__.'/../conexao/banco.php';
 require_once __DIR__.'/site_sections_helpers.php';
 $section_labels=['services'=>'Nossos Serviços','gallery'=>'Projetos assinados'];

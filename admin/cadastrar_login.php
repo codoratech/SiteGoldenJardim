@@ -21,6 +21,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome = $_POST['log_nome'];
     $login = $_POST['log_login'];
     $senha = $_POST['log_senha'];
+    $perfil = $_POST['log_perfil'] ?? '';
+    if (!in_array($perfil, admin_roles(), true)) reject_request('Selecione um perfil de usuário válido.');
+    if (strcasecmp(trim($login), 'Adm') === 0 && $perfil !== 'Administrador') reject_request('O login Adm deve permanecer Administrador.');
     if (trim($_POST['log_nome']) === '' || trim($_POST['log_login']) === '') reject_request('Nome e login são obrigatórios.');
     if (strlen($_POST['log_nome']) > 120 || strlen($_POST['log_login']) > 50) reject_request('Nome ou login excede o tamanho permitido.');
     $duplicate = mysqli_prepare($con, 'SELECT log_codigo FROM tb_login WHERE log_login = ? AND log_codigo <> ?');
@@ -32,9 +35,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($nome) || empty($login) || empty($senha)) {
         $msg_erro = "Todos os campos são obrigatórios.";
     } else {
-        if (strlen($senha) < 8) reject_request('A senha deve ter pelo menos 8 caracteres.');
+        if (strlen($senha) < 8 || strlen($senha) > 72 || strpos($senha, "\0") !== false) reject_request('A senha deve ter entre 8 e 72 bytes.');
         $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-        if (ui_query($con, "INSERT INTO tb_login (log_nome, log_login, log_senha) VALUES (?, ?, ?)", [$nome, $login, $senha_hash])) {
+        if (ui_query($con, "INSERT INTO tb_login (log_nome, log_login, log_senha, log_perfil) VALUES (?, ?, ?, ?)", [$nome, $login, $senha_hash, $perfil])) {
             header("Location: cadastrar_login.php?ok=insert");
             exit();
         } else {

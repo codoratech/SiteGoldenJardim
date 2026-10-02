@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__.'/bootstrap.php';
+require_login();
+exigirPermissao('conteudo_publico');
 header('Content-Type: text/plain; charset=utf-8');
 $dir = __DIR__ . '/uploads/site';
 if (!is_dir($dir)) { @mkdir($dir, 0755, true); }

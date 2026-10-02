@@ -1,4 +1,4 @@
-<?php if (!isset($site_config,$site_values)) { http_response_code(404); exit; } ?>
+<?php require_once dirname(__DIR__).'/bootstrap.php'; require_login(); exigirPermissao('conteudo_publico'); if (!isset($site_config,$site_values)) { http_response_code(404); exit; } ?>
 <section class="manage-card form-card site-form-card"><div class="card-heading"><div><h2><?= $editing ? 'Dados do '.$site_config['singular'] : 'Conteúdo do novo '.$site_config['singular'] ?></h2><p>Inglês é opcional. Campos vazios usam o texto em português.</p></div><?= admin_icon($site_config['icon']) ?></div>
  <form class="manage-form" data-site-form method="POST" enctype="multipart/form-data" action="<?= ui_escape($route) ?>" novalidate>
  <?= csrf_field() ?><input type="hidden" name="acao" value="salvar"><input type="hidden" name="registro" value="<?= $site_id ?: '' ?>"><input type="hidden" name="MAX_FILE_SIZE" value="5242880">

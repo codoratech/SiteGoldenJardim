@@ -1,5 +1,5 @@
 <?php
-if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) { http_response_code(404); exit; }
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) { require_once __DIR__.'/bootstrap.php'; require_login(); exigirPermissao('conteudo_publico'); http_response_code(404); exit; }
 require_once __DIR__.'/site_config.php';
 require_once __DIR__.'/site_uploads.php';
 require_once __DIR__.'/../includes/site_content.php';
@@ -37,6 +37,7 @@ function site_admin_remove_unused($con,$path) {
     return $total ? true : site_upload_delete($path);
 }
 function site_admin_mutate($con,$config,$action,$id,$data=[],$image=null) {
+    exigirPermissao('conteudo_publico');
     $newPath=null; $oldPath=null; $cleanup=false;
     mysqli_begin_transaction($con);
     try {

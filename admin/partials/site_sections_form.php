@@ -1,4 +1,4 @@
-<?php if (!isset($section_values,$section_labels)) { http_response_code(404); exit; } ?>
+<?php require_once dirname(__DIR__).'/bootstrap.php'; require_login(); exigirPermissao('conteudo_publico'); if (!isset($section_values,$section_labels)) { http_response_code(404); exit; } ?>
 <div class="manage-page site-manage-page">
  <div class="page-heading"><div><p class="eyebrow">GOLDEN JARDIM · SITE</p><h1>Textos das seções<span>.</span></h1><p>Edite as apresentações de Serviços e Projetos em português e inglês.</p></div><a class="secondary-action" href="../index.php#services" target="_blank" rel="noopener">Ver no site <?= admin_icon('arrow') ?></a></div>
  <nav class="page-breadcrumb" aria-label="Caminho da página"><a href="dashboard.php">Painel</a><span>/</span><span>Site</span><span>/</span><span>Textos das seções</span><span>/</span><span aria-current="page">Editar</span></nav>

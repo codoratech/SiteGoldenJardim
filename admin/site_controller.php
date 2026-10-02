@@ -1,7 +1,8 @@
 <?php
-if (!isset($site_kind)) { http_response_code(404); exit; }
 require_once __DIR__.'/bootstrap.php';
 require_login();
+exigirPermissao('conteudo_publico');
+if (!isset($site_kind)) { http_response_code(404); exit; }
 require_once __DIR__.'/../conexao/banco.php';
 require_once __DIR__.'/ui_helpers.php';
 require_once __DIR__.'/site_helpers.php';

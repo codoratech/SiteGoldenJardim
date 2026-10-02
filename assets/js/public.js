@@ -6,32 +6,38 @@ const dict = {
   pt: {
     "nav.services":"Serviços","nav.projects":"Projetos","nav.about":"Sobre","nav.contact":"Contato","nav.cta":"Orçamento",
     "hero.eyebrow":"Arquitetura • Natureza • Tecnologia","hero.titleA":"ENGENHARIA","hero.titleB":"DE ECOSSISTEMAS",
-    "hero.body":"Paisagismo premium para residências, condomínios e empresas em Americana-SP. Unimos precisão técnica e arte biológica para criar obras vivas.",
+    "hero.body":"Paisagismo premium para residências, condomínios e empresas em Americana e região. Unimos precisão técnica e arte biológica para transformar espaços em verdadeiras obras vivas.",
     "hero.stat1":"Projetos","hero.stat2":"Anos de expertise","hero.scroll":"Role para explorar",
-    "ba.eyebrow":"Caso de estudo","ba.title":"TRANSFORMAÇÃO","ba.before":"Antes","ba.after":"Depois","ba.hint":"Arraste ou use as setas para comparar",
+    "services.title":"SISTEMAS\nCENTRAIS","services.subtitle":"Especialidades conduzidas por Rodrigo & Fernanda Câmara",
+    "gallery.eyebrow":"Portfólio","gallery.title":"Projetos assinados","gallery.subtitle":"Uma seleção de transformações entregues em Americana e região.",
+    "ba.eyebrow":"Caso de estudo","ba.title":"TRANSFORMAÇÃO","ba.before":"Antes","ba.after":"Depois","ba.hint":"Arraste para comparar",
     "testimonials.eyebrow":"Confiança","testimonials.title":"O que dizem nossos clientes",
     "about.eyebrow":"Quem somos","about.title":"Tecnologia e jardinagem em equilíbrio.",
-    "about.body":"A Golden Jardim nasceu para elevar o padrão do paisagismo na região de Americana-SP. Combinamos curadoria botânica, gestão técnica e identidade visual para entregar experiências verdes únicas.",
+    "about.body":"A Golden Jardim nasceu para elevar o padrão do paisagismo em Americana-SP e Região. Combinamos curadoria botânica, gestão técnica e identidade visual para entregar experiências verdes únicas.",
     "about.r.role":"Gestão de Operações","about.f.role":"Gestão Financeira",
-    "contact.eyebrow":"// Vamos conversar","contact.title":"Seu próximo projeto começa com uma conversa.","contact.subtitle":"Paisagismo premium e engenharia de ecossistemas para sua residência ou empresa. Vamos entender sua necessidade e apresentar a melhor solução.","contact.waBtn":"Conversar com a Golden Jardim","contact.info1":"Atendimento via WhatsApp","contact.info2":"Segunda a Sexta • 09h às 17h","contact.info3":"Primeira resposta em poucos minutos",
+    "contact.eyebrow":"// Vamos conversar","contact.title":"Seu próximo projeto começa com uma conversa.","contact.subtitle":"Paisagismo premium e engenharia de ecossistemas para sua residência ou empresa. Vamos entender sua necessidade e apresentar a melhor solução.","contact.waBtn":"Conversar com a Golden Jardim","contact.info1":"Atendimento via WhatsApp","contact.info2":"Segunda a Sexta • 08h às 18h","contact.info3":"Primeira resposta em poucos minutos",
     "footer.studio":"Estúdio","footer.leadership":"Liderança","footer.rights":"© 2026 Golden Jardim • Paisagismo de precisão",
     "footer.address":"Americana, São Paulo\nAtendemos Americana e região","cta.float":"Falar no WhatsApp"
   },
   en: {
     "nav.services":"Services","nav.projects":"Projects","nav.about":"About","nav.contact":"Contact","nav.cta":"Get Quote",
     "hero.eyebrow":"Architecture • Nature • Technology","hero.titleA":"ENGINEERING","hero.titleB":"ECOSYSTEMS",
-    "hero.body":"Premium landscaping for residential, condominium and commercial spaces in Americana, SP. We blend technical precision with biological artistry to create living masterpieces.",
+    "hero.body":"Premium landscaping for residential, condominium and commercial spaces in Americana and the surrounding region. We blend technical precision with biological artistry to transform spaces into true living masterpieces.",
     "hero.stat1":"Projects","hero.stat2":"Years expertise","hero.scroll":"Scroll to explore",
-    "ba.eyebrow":"Case study","ba.title":"TRANSFORMATION","ba.before":"Before","ba.after":"After","ba.hint":"Drag or use arrow keys to compare",
+    "services.title":"CORE\nSYSTEMS","services.subtitle":"Specialty services led by Rodrigo & Fernanda Câmara",
+    "gallery.eyebrow":"Portfolio","gallery.title":"Signature projects","gallery.subtitle":"Selected transformations delivered across Americana region.",
+    "ba.eyebrow":"Case study","ba.title":"TRANSFORMATION","ba.before":"Before","ba.after":"After","ba.hint":"Drag to compare",
     "testimonials.eyebrow":"Trust","testimonials.title":"What our clients say",
     "about.eyebrow":"About","about.title":"Technology and gardening in balance.",
     "about.body":"Golden Jardim was born to raise the bar for landscaping in the Americana-SP region. We combine botanical curation, technical management and visual identity to deliver unique green experiences.",
     "about.r.role":"Operations Manager","about.f.role":"Financial Manager",
-    "contact.eyebrow":"// Let's talk","contact.title":"Your next project starts with a conversation.","contact.subtitle":"Premium landscaping and ecosystem engineering for your residence or business. Let's understand your needs and present the best solution.","contact.waBtn":"Chat with Golden Jardim","contact.info1":"WhatsApp support","contact.info2":"Monday to Friday • 9am to 5pm","contact.info3":"First reply in minutes",
+    "contact.eyebrow":"// Let's talk","contact.title":"Your next project starts with a conversation.","contact.subtitle":"Premium landscaping and ecosystem engineering for your residence or business. Let's understand your needs and present the best solution.","contact.waBtn":"Chat with Golden Jardim","contact.info1":"WhatsApp support","contact.info2":"Monday to Friday • 8am to 6pm","contact.info3":"First reply in minutes",
     "footer.studio":"Studio","footer.leadership":"Leadership","footer.rights":"© 2026 Golden Jardim • Precision landscape",
     "footer.address":"Americana, São Paulo\nServing Americana & nearby cities","cta.float":"Chat on WhatsApp"
   }
 };
+
+
 
 const testimonials = [
   {pt:["A Golden Jardim transformou nossa entrada em uma assinatura visual. Profissionalismo absoluto.","Marina Rocha","Condomínio Alphaville Americana"], en:["Golden Jardim turned our entrance into a true visual signature. Absolute professionalism.","Marina Rocha","Alphaville Americana Condominium"]},
@@ -48,6 +54,7 @@ function waUrl(text){
 }
 
 function renderServices(){ GoldenSiteContent.renderServices(lang); }
+
 function renderGallery(){ GoldenSiteContent.renderProjects(lang); }
 
 function renderTestimonials(){
@@ -65,7 +72,7 @@ function applyI18n(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     const key = el.getAttribute("data-i18n");
     if(dict[lang][key] !== undefined) el.textContent = dict[lang][key];
-    if(el.hasAttribute('data-site-eyebrow')) el.hidden = !el.textContent.trim();
+    if(el.hasAttribute("data-site-eyebrow")) el.hidden = !el.textContent.trim();
   });
   renderServices();
   renderGallery();
@@ -126,35 +133,29 @@ function setupWhatsApp(){
 /* ---------- BEFORE / AFTER SLIDER ---------- */
 (function(){
   const frame = document.getElementById("baFrame");
-  const beforeWrap = document.getElementById("baBeforeWrap");
-  const handle = document.getElementById("baHandle");
   let dragging = false;
-  let position = 50;
-  function setPosition(pos) {
-    position = Math.max(0, Math.min(100, pos));
-    beforeWrap.style.width = position + '%';
-    handle.style.left = position + '%';
-    handle.setAttribute('aria-valuenow', Math.round(position));
-  }
-  handle.addEventListener('keydown', e => {
-    const changes = {ArrowLeft:-5, ArrowDown:-5, ArrowRight:5, ArrowUp:5};
-    if (e.key in changes || e.key === 'Home' || e.key === 'End') {
-      e.preventDefault();
-      setPosition(e.key === 'Home' ? 0 : e.key === 'End' ? 100 : position + changes[e.key]);
-    }
-  });
-  function update(clientX){
-    const rect = frame.getBoundingClientRect();
-    let pos = ((clientX - rect.left) / rect.width) * 100;
+  function setPos(pos){
     pos = Math.max(0, Math.min(100, pos));
-    setPosition(pos);
+    frame.style.setProperty("--pos", pos + "%");
+    frame.setAttribute("aria-valuenow", Math.round(pos));
+    return pos;
   }
-  frame.addEventListener("mousedown", (e)=>{ dragging = true; update(e.clientX); });
-  frame.addEventListener("touchstart", (e)=>{ dragging = true; update(e.touches[0].clientX); });
-  window.addEventListener("mousemove", (e)=>{ if(dragging) update(e.clientX); });
-  window.addEventListener("touchmove", (e)=>{ if(dragging) update(e.touches[0].clientX); });
-  window.addEventListener("mouseup", ()=> dragging = false);
-  window.addEventListener("touchend", ()=> dragging = false);
+  function fromX(clientX){
+    const rect = frame.getBoundingClientRect();
+    frame.classList.add("touched");
+    setPos(((clientX - rect.left) / rect.width) * 100);
+  }
+  frame.addEventListener("pointerdown", (e)=>{ dragging = true; frame.setPointerCapture(e.pointerId); fromX(e.clientX); });
+  frame.addEventListener("pointermove", (e)=>{ if(dragging) fromX(e.clientX); });
+  frame.addEventListener("pointerup", ()=> dragging = false);
+  frame.addEventListener("pointercancel", ()=> dragging = false);
+  frame.addEventListener("keydown", (e)=>{
+    const value = parseFloat(getComputedStyle(frame).getPropertyValue("--pos"));
+    const cur = Number.isFinite(value) ? value : 50;
+    if(e.key === "Home" || e.key === "End"){ frame.classList.add("touched"); setPos(e.key === "Home" ? 0 : 100); e.preventDefault(); }
+    if(e.key === "ArrowLeft" || e.key === "ArrowDown"){ frame.classList.add("touched"); setPos(cur - 5); e.preventDefault(); }
+    if(e.key === "ArrowRight" || e.key === "ArrowUp"){ frame.classList.add("touched"); setPos(cur + 5); e.preventDefault(); }
+  });
 })();
 
 /* ---------- REVEAL ON SCROLL ---------- */

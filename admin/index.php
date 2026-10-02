@@ -12,6 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario = mysqli_num_rows($resultado) === 1 ? mysqli_fetch_assoc($resultado) : null;
     $legacy = $usuario && preg_match('/^[a-f0-9]{32}$/i', $usuario['log_senha']);
     $valid = $usuario && ($legacy ? hash_equals(strtolower($usuario['log_senha']), md5($senha)) : password_verify($senha, $usuario['log_senha']));
+    $identity = $valid ? admin_load_identity($con, (int)$usuario['log_codigo']) : null;
+    $valid = $valid && $identity !== null;
     if ($valid) {
         if ($legacy || password_needs_rehash($usuario['log_senha'], PASSWORD_DEFAULT)) {
             $hash = password_hash($senha, PASSWORD_DEFAULT);
@@ -24,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['log_codigo'] = $usuario['log_codigo'];
         $_SESSION['log_nome'] = $usuario['log_nome'];
         $_SESSION['log_login'] = $usuario['log_login'];
+        admin_store_identity($identity);
         header('Location: dashboard.php');
         exit;
     }

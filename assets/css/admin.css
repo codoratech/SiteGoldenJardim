@@ -10,3 +10,4 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 
 .sr-only{left:0;top:0;white-space:nowrap;padding:0;border:0}
+#userPanel a,#userPanel form button{display:flex;flex-direction:row;align-items:center;gap:8px;min-height:44px;width:100%}

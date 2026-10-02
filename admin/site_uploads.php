@@ -1,5 +1,5 @@
 <?php
-if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) { http_response_code(404); exit; }
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) { require_once __DIR__.'/bootstrap.php'; require_login(); exigirPermissao('conteudo_publico'); http_response_code(404); exit; }
 class SiteImageValidation extends RuntimeException {}
 
 function site_upload_inspect($file) {
@@ -28,6 +28,7 @@ function site_upload_inspect($file) {
 }
 
 function site_upload_store($image) {
+    exigirPermissao('conteudo_publico');
     if (!$image) return null;
     $directory = dirname(__DIR__).'/uploads/site';
     if (!is_dir($directory) && !mkdir($directory,0755,true)) throw new RuntimeException('Não foi possível preparar a pasta de imagens.');
@@ -65,6 +66,7 @@ function site_upload_store($image) {
 }
 
 function site_upload_delete($path) {
+    exigirPermissao('conteudo_publico');
     if (!is_string($path) || !preg_match('~\Auploads/site/[a-f0-9]{32}\.(?:jpg|png|webp)\z~D',$path)) return true;
     $directory = realpath(dirname(__DIR__).'/uploads/site');
     $absolute = dirname(__DIR__).'/'.$path;

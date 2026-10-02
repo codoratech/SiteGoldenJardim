@@ -1,5 +1,5 @@
 <?php
-if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) { http_response_code(404); exit; }
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) { require_once __DIR__.'/bootstrap.php'; require_login(); exigirPermissao('conteudo_publico'); http_response_code(404); exit; }
 function site_admin_config($kind) {
     $common = ['titulo_pt'=>['Título em português','text',true,120], 'titulo_en'=>['Título em inglês','text',false,120], 'descricao_pt'=>['Descrição em português','textarea',false,600], 'descricao_en'=>['Descrição em inglês','textarea',false,600]];
     $configs = [

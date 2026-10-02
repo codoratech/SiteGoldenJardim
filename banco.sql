@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS tb_login (
     log_nome VARCHAR(120) NOT NULL,
     log_login VARCHAR(50) NOT NULL,
     log_senha VARCHAR(255) NOT NULL,
+    log_perfil VARCHAR(80) NOT NULL DEFAULT 'Operacional',
+    log_ativo TINYINT(1) NOT NULL DEFAULT 1,
     log_data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (log_codigo),
     UNIQUE KEY uq_log_login (log_login)

@@ -70,6 +70,7 @@ function ui_field_error($field, $value, $required, $error) {
     if ($field[2] === 'number' && $text !== '' && (!ctype_digit($text) || (float)$text > 2147483647)) return 'Informe um número inteiro válido.';
     if ($field[2] === 'password' && $text !== '' && strlen($text)<8) return 'Use pelo menos 8 caracteres.';
     if ($field[0] === 'log_login' && strpos($error,'login já')!==false) return $error;
+    if ($field[0] === 'log_perfil' && !in_array($value, admin_roles(), true)) return 'Selecione um perfil válido.';
     return '';
 }
 function ui_render_page($con, $key, $isCreate, $record, $message, $error) {
